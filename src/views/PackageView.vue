@@ -1,25 +1,42 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import 'vue3-carousel/dist/carousel.css'
 import { END_POINT } from '@/api/api';
 import request from '@/utils/request';
-import CoursePopup from '@/components/CoursePopup.vue';
-const courses = ref([]);
+import PackagePopup from '@/components/PackagePopup.vue';
+
+
+const packages = ref([]);
 const showPopup = ref(false)
-const selectedCourse = ref(null)
+const selectedPackage = ref(null)
 const isEdit = ref(false)
 
+const currentPage = ref(1);
+const itemsPerPage = ref(2);
 
+const featureOptions = ref([
+  { type: "course", id: 1, name: "Khóa học" },
+  { type: "assistant", id: 2, name: "Trợ lý" }
+]);
 
-const addNewCourse = () => {
+const getFeatureNames = (features) => {
+  if (!features) return '';
+  const parsedFeatures = typeof features === 'string' ? JSON.parse(features) : features;
+
+  return parsedFeatures
+    .map(f => featureOptions.value.find(option => option.id === f.id)?.name || '')
+    .filter(Boolean) 
+    .join(', ');
+};
+
+const addNewPackage = () => {
   showPopup.value = true;
-  selectedCourse.value = null,
+  selectedPackage.value = null,
   isEdit.value = false
 };
 
 
-const openPopup = (course = null, edit = false) => {
-  selectedCourse.value = course
+const openPopup = (pck = null, edit = false) => {
+  selectedPackage.value = pck
   isEdit.value = edit
   showPopup.value = true
 }
@@ -27,21 +44,56 @@ const openPopup = (course = null, edit = false) => {
 
 const closePopup = () => {
   showPopup.value = false
-  selectedCourse.value = null
+  selectedPackage.value = null
 }
 
 
-const currentPage = ref(1);
-const itemsPerPage = ref(8);
+const confirmDelete = (id) => {
+  if (confirm("Bạn có chắc chắn muốn xóa gói này vĩnh viễn?")) {
+    deletePackage(id)
+  }
+}
+
+const deletePackage = async (id) => {
+  try {
+    const response = await request.delete(END_POINT.PACKAGES_DELETE, {
+      data: JSON.stringify({ id: id })
+    });
+    packages.value = packages.value.filter(pck => pck.id !== id)
+    if (response.success) {
+      notify({
+        title: 'Thành công',
+        text: 'Xóa gói thành công ',
+        type: 'success'
+      });
+    }
+  } catch (error) {
+    console.error('Lỗi khi xóa người dùng:', error)
+    notify({
+      title: 'Lỗi',
+      text: 'Xóa gói thất bại. Vui lòng thử lại. ',
+      type: 'error'
+    });
+  }
+}
+
+const fetchPackages = async () => {
+  try {
+    const response = await request.get(END_POINT.PACKAGES_LIST);
+    packages.value = response.packages;
+  } catch (error) {
+    console.error('Lỗi lấy danh sách gói:', error)
+  }
+};
 
 const paginatedItems = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
-  return courses.value.slice(start, end);
+  return packages.value.slice(start, end);
 });
 
 const totalPages = computed(() => {
-  return Math.ceil(courses.value.length / itemsPerPage.value);
+  return Math.ceil(packages.value.length / itemsPerPage.value);
 });
 
 const changePage = (page) => {
@@ -49,18 +101,8 @@ const changePage = (page) => {
     currentPage.value = page;
   }
 };
-
-const fetchCourses = async () => {
-  try {
-    const response = await request.get(END_POINT.COURSES_LIST);
-    courses.value = response.courses;
-  } catch (error) {
-    console.error('Lỗi lấy danh sách trợ lý:', error);
-  }
-};
-
 onMounted(() => {
-  fetchCourses();
+  fetchPackages();
 });
 
 </script>
@@ -70,32 +112,32 @@ onMounted(() => {
       <button class="list">Danh sách</button>
     </div>
     <div class="header-title">
-      <h1 class="title">Danh sách khóa học</h1>
+      <h1 class="title">Gói cước AnPhatHung.AI</h1>
     </div>
     <div class="main-content">
       <div class="group-button">
-        <button class="button"  @click="addNewCourse"><i class='bx bx-video-plus' ></i> Thêm khóa học</button>
+        <button class="button" @click="addNewPackage"><i class='bx bxs-user-plus'></i> Thêm gói cước</button>
       </div>
       <table class="table" style="border: 1px solid rgba(128, 128, 128, 0.288);;padding: 10px;">
         <thead>
           <tr>
             <th>Số thứ tự</th>
-            <th>Hình ảnh</th>
-            <th>Tên khóa học</th>
-            <th>Mô tả</th>
-            <th >Trạng thái</th>
+            <th>Tên gói cước</th>
+            <th>Mô tả gói cươc</th>
+            <th>Giá tiền</th>
+            <th>Tính năng</th>
+            <th>Lượt yêu cầu</th>
             <th style="width: 150px;"></th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(item, index) in paginatedItems" :key="index">
-            <td  style="text-align: center;" :data-id="item.id">{{ index }}</td>
-            <td style="max-width: 200px;"><img :src="item.image" alt="Hình ảnh"></td>
-            <td style="max-width: 150px;">{{ item.name }}</td>
-            <td class="detail">{{ item.detail }}</td>
-            <td> <span :class="{ active: item.status === 1, inactive: item.status !== 1 }">
-                {{ item.status === 1 ? 'Hoạt động' : 'Ngừng hoạt động' }}
-              </span></td>
+            <td style="text-align: center;" :data-id="item.id">{{ index }}</td>
+            <td style="max-width: 200px;">{{ item.name }}</td>
+            <td>{{ item.description }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ getFeatureNames(item.features) }}</td>
+            <td>{{ item.ask }}</td>
             <td class="table-button">
               <button class="button" @click="openPopup(item, true)"><i class='bx bx-edit-alt'></i> Chỉnh sửa</button>
               <button class="button" @click="confirmDelete(item.id)"><i class='bx bx-trash'></i> Xóa vĩnh viễn</button>
@@ -109,8 +151,7 @@ onMounted(() => {
           {{ page }}</span>
       </div>
     </div>
-    <CoursePopup v-if="showPopup" :selectedCourse="selectedCourse" :isEdit="isEdit" @close="closePopup" @saved="fetchCourses" />
-
+    <PackagePopup v-if="showPopup" :featureOptions="featureOptions" :package="selectedPackage" :isEdit="isEdit" @close="closePopup" @saved="fetchPackages" />
   </div>
 
 </template>
@@ -139,6 +180,8 @@ onMounted(() => {
   padding-bottom: 100px;
 }
 
+
+
 .change-type {
   position: absolute;
   top: 0;
@@ -154,6 +197,7 @@ onMounted(() => {
   background-color: #e03d31;
   color: white;
 }
+
 .main-content {
   width: 100%;
 }
@@ -170,56 +214,43 @@ onMounted(() => {
   width: 100%;
   margin-bottom: 3px;
 }
-.button:hover{
+
+.table-button .button:hover {
   background-color: #e03d31;
   color: white;
   cursor: pointer;
 }
+
 .input {
   padding: 8px 10px;
   border: 1px solid rgba(128, 128, 128, 0.226);
   cursor: pointer;
 }
-.input:focus{
+
+.input:focus {
   outline: none;
 }
+
 td {
   padding: 5px 10px;
   border-top: 1px solid rgba(128, 128, 128, 0.288);
   border-left: 1px solid rgba(128, 128, 128, 0.288);
   margin: 0;
 }
-td img {
-  width: 80px;
-  height: 80x;
-  object-fit: contain;
-}
-td .detail {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: justify;
-}
-td .active {
-  color: #28a745;
-}
 
-td  .inactive {
-  color: #dc3545;
-}
-
+tr {}
 
 tr:hover {
   background-color: #e03d315b;
   cursor: pointer;
 }
-.group-button{
+
+.group-button {
   margin-right: 5px;
   margin-bottom: 10px;
 }
-.group-button .button{
+
+.group-button .button {
   padding: 8px 10px;
   margin-right: 5px;
   border: 1px solid rgba(128, 128, 128, 0);
@@ -230,12 +261,14 @@ tr:hover {
   background-color: #e03d31;
   color: white;
 }
-.group-button .button:hover{
+
+.group-button .button:hover {
   border: 1px solid #e03d31;
   background-color: #ffffff;
   color: rgb(255, 0, 0);
   cursor: pointer;
 }
+
 .pagination {
   width: 100%;
   margin-top: 20px;
@@ -255,6 +288,7 @@ tr:hover {
 
   color: #fff;
 }
+
 /* Responsive Styles */
 @media (max-width: 1200px) {
   .main-container {

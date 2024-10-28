@@ -32,6 +32,12 @@ export const END_POINT = {
     LESSON_UPDATE: '/api/lesson/update', // Cập nhật bài giảng
     LESSON_DELETE: '/api/lesson/delete', // Xóa bài giảng
 
+    // license APIs
+    LICENSES_LIST: '/api/licenses', // Danh sách bản quyền
+    LICENSE_FIND: '/api/license/find', // Tìm bản quyền
+    LICENSE_CREATE: '/api/license/create', // Tạo bản quyền
+    LICENSE_UPDATE: '/api/license/update', // Cập nhật bản quyền
+    LICENSE_DELETE: '/api/license/delete', // Xóa bản quyền
     // Users APIs
     USERS_LIST: '/api/users', // Danh sách người dùng
     USER_FIND: '/api/user/find', // Tìm người dùng
@@ -43,4 +49,10 @@ export const END_POINT = {
     FILE_DELETE: (fileId) => `/api/file/${fileId}`,
     // Setup APIs
     SETUP: '/api/setup', // Tải cài đặt
+
+    PACKAGES_LIST: 'api/packages' ,// lấy danh sách gói
+    PACKAGE_FIND: '/api/package/find', // Tìm bản gói
+    PACKAGE_CREATE: '/api/package/create', // Tạo bản gói
+    PACKAGE_UPDATE: '/api/package/update', // Cập nhật bản gói
+    PACKAGES_DELETE: 'api/package/delete' // lấy danh sách gói
 };

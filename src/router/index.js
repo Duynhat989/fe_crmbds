@@ -9,7 +9,7 @@ import ContractView from '@/views/ContractView.vue';
 import CourseView from '@/views/CourseView.vue';
 import CourseDetail from '@/views/CourseDetail.vue';
 import SetupView from '@/views/SetupView.vue';
-import LicenseView from '@/views/LicenseView.vue';
+import PackageView from '@/views/PackageView.vue';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -52,7 +52,7 @@ const router = createRouter({
     {
       path: '/license',
       name: 'license',
-      component: LicenseView ,
+      component: PackageView ,
       meta: { requiresAuth: true } 
     },
     {
