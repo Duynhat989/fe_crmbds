@@ -1,0 +1,426 @@
+<script setup>
+import { ref, defineProps, defineEmits, onMounted, watch } from 'vue';
+
+const emit = defineEmits(['close', 'submit']);
+import { notify } from '@kyvg/vue3-notification';
+import request from '@/utils/request';
+import { END_POINT } from '@/api/api';
+
+const assistant_id = ref(null);
+const assistantData = ref({
+    name: '',
+    detail: '',
+    image: '',
+    instructions: '',
+    file_ids: [],
+    suggests: [''],
+});
+
+
+const fetchAssistantFind = async () => {
+    try {
+        if(assistant_id.value !== null ) {
+            const response = await request.post(END_POINT.ASSISTANT_FIND, { id: assistant_id.value });
+            assistantData.value = {
+                ...response.data,
+                file_ids: JSON.parse(response.data.file_ids),
+                suggests: JSON.parse(response.data.suggests),
+            };
+        }
+    } catch (error) {
+        console.error('Lỗi lấy danh sách trợ lý:', error);
+    }
+};
+
+const pendingFiles = ref([]);
+
+const props = defineProps({
+    editAssistantId: {
+        type: Number,
+        default: null,
+    }
+});
+
+function getDefaultAssistantData() {
+    return {
+        name: '',
+        detail: '',
+        image: '',
+        instructions: '',
+        file_ids: [],
+        suggests: [''],
+    };
+}
+const closePopup = () => {
+    emit('close');
+    assistantData.value= getDefaultAssistantData();
+};
+const addSuggestion = () => {
+    if (!assistantData.value.suggests) {
+        assistantData.value.suggests = [];
+    }
+    assistantData.value.suggests.push('');
+};
+
+const removeSuggestion = (index) => {
+    console.log(assistantData.value.suggests);
+    assistantData.value.suggests.splice(index, 1);
+};
+
+const addFileInput = () => {
+    if (!assistantData.value.file_ids) {
+        assistantData.value.file_ids = [];
+    }
+    assistantData.value.file_ids.push('');
+    pendingFiles.value.push(null);
+};
+const handleFileChange = (event, index) => {
+    const file = event.target.files[0];
+    if (file) {
+        pendingFiles.value[index] = file;
+    }
+};
+const uploadFile = async (file) => {
+    try {
+        if (!file) return null;
+
+        const formData = new FormData();
+        formData.append("file", file, file.name);
+        const response = await request.post(END_POINT.FILE_UPLOAD, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        if (response.success) {
+            return response.data.id;
+        } else {
+            notify({
+                title: 'Lỗi',
+                text: 'Upload file thất bại, vui lòng thử lại sau.',
+                type: 'error'
+            });
+            return null;
+        }
+    } catch (error) {
+        notify({
+            title: 'Lỗi',
+            text: 'Upload file thất bại, vui lòng thử lại sau.',
+            type: 'error'
+        });
+        console.error("File upload failed:", error);
+        return null;
+    }
+};
+const deleteFile = async (fileId) => {
+    try {
+        await request.delete(END_POINT.FILE_DELETE(fileId));
+    } catch (error) {
+        console.error("File deletion error:", error);
+        notify({
+            title: 'Lỗi',
+            text: 'Xóa file thất bại, vui lòng thử lại sau.',
+            type: 'error'
+        });
+        return false;
+    }
+};
+
+
+const removeFile = async (index) => {
+    // const fileId = assistantData.value.file_ids[index];
+    // console.log(index,fileId);
+    // if (fileId) {
+    //     const response = await deleteFile(fileId);
+    //     console.log(response)
+    //     if (response.success) {
+    //         assistantData.value.file_ids.splice(index, 1);
+    //         notify({
+    //             title: 'Thành công',
+    //             text: 'Xóa file Thành công',
+    //             type: 'success'
+    //         });
+    //     }else{
+    //         assistantData.value.file_ids.splice(index, 1);
+    //         pendingFiles.value.splice(index, 1);
+    //     }
+    //     console.log(assistantData.value,pendingFiles.value);
+    // } else {
+        assistantData.value.file_ids.splice(index, 1);
+        pendingFiles.value.splice(index, 1);
+    // }
+    // console.log('pending',pendingFiles.value,assistantData.value)
+
+};
+const submitForm = async () => {
+    for (let i = 0; i < pendingFiles.value.length; i++) {
+        if (pendingFiles.value[i]) {
+            const fileId = await uploadFile(pendingFiles.value[i]);
+            if (fileId) {
+                assistantData.value.file_ids[i] = fileId;
+            }
+            else {
+                assistantData.value.file_ids[i] = null;
+            }
+        }
+    }
+    const dataToSubmit = {
+        ...assistantData.value,
+        file_ids: assistantData.value.file_ids.filter(id => id),
+    };
+
+    const newAssistantForEmit = {
+        ...dataToSubmit,
+        suggests: JSON.stringify(assistantData.value.suggests),
+    };
+    try {
+        let response;
+        if (assistant_id.value) {
+            console.log(dataToSubmit);
+            response = await request.post(END_POINT.ASSISTANT_UPDATE, dataToSubmit );
+        } else {
+            response = await request.post(END_POINT.ASSISTANT_CREATE, dataToSubmit);
+        }
+        if (response.success) {
+            notify({
+                title: 'Thành công',
+                text: 'Thêm mới & Cập nhật trợ lý thành công!',
+                type: 'success'
+            });
+            emit('submit', newAssistantForEmit);
+        } else {
+            notify({
+                title: 'Lỗi',
+                text: 'Thêm mới trợ lý thất bại, vui lòng thử lại sau.',
+                type: 'error'
+            });
+        }
+    } catch (error) {
+        notify({
+            title: 'Lỗi',
+            text: 'Đã xảy ra lỗi trong quá trình thêm trợ lý. Vui lòng thử lại.',
+            type: 'error'
+        });
+    } finally {
+        closePopup();
+    }
+}
+onMounted(() => {
+    if (props.editAssistantId !== null) {
+        assistant_id.value = props.editAssistantId;
+    }
+    fetchAssistantFind();
+});
+</script>
+<template>
+    <div class="popup-overlay" @click.self="closePopup">
+        <div class="popup-container">
+            <h2>{{ editAssistantId ? 'Chỉnh sửa Trợ Lý' : 'Thêm Trợ Lý Mới' }}</h2>
+            <form @submit.prevent="submitForm">
+                <!-- Cột bên trái -->
+                <div class="form-row">
+                    <div class="form-column">
+                        <div class="form-group">
+                            <label for="name">Tên Trợ Lý:</label>
+                            <input type="text" id="name" v-model="assistantData.name" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="detail">Chi tiết:</label>
+                            <textarea id="detail" v-model="assistantData.detail" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="instructions">Hướng dẫn:</label>
+                            <textarea id="instructions" v-model="assistantData.instructions" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="image">Ảnh đại diện:</label>
+                            <input type="text" v-model="assistantData.image" placeholder="Thêm link ảnh đại diện">
+                            <img v-if="assistantData.image" :src="assistantData.image" alt="Ảnh đại diện"
+                                class="preview-image" />
+                        </div>
+                    </div>
+
+                    <!-- Cột bên phải -->
+                    <div class="form-column">
+                        <div class="form-group">
+                            <label>Đề xuất tin nhắn:</label>
+                            <div v-for="(suggest, index) in assistantData.suggests" :key="index" class="suggest-item">
+                                <input type="text" v-model="assistantData.suggests[index]" placeholder="Tin nhắn" />
+                                <button type="button" @click="removeSuggestion(index)" class="remove-btn">Xóa</button>
+                            </div>
+                            <button type="button" @click="addSuggestion" class="add-btn">+ Thêm đề xuất</button>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tải lên file:</label>
+                            <div v-for="(file, index) in assistantData.file_ids" :key="index" class="file-item">
+                                <input type="file" @change="handleFileChange($event, index)"
+                                    accept=".pdf, .doc, .docx, .xls, .xlsx" />
+                                <span>{{ file }}</span>
+                                <button type="button" @click="removeFile(index)" class="remove-btn">Xóa</button>
+                            </div>
+                            <button type="button" @click="addFileInput" class="add-btn">+ Thêm file</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Nút lưu và hủy -->
+                <div class="form-group form-actions">
+                    <button type="submit" class="save-btn">Lưu</button>
+                    <button type="button" @click="closePopup" class="cancel-btn">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</template>
+
+<style scoped>
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-container {
+    width: 90%;
+    max-width: 1300px;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.popup-container h2 {
+    font-size: 26px;
+    color: #e63939;
+    font-weight: bold;
+    margin-bottom: 5px;
+    width: 100%;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ff3f3f;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: #fff0f0;
+    color: #333;
+}
+
+form {
+    width: 100%;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.form-column {
+    flex: 1;
+    min-width: 300px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.add-btn,
+.remove-btn,
+.save-btn,
+.cancel-btn {
+    background-color: #ff3f3f;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+    margin-top: 0.5rem;
+}
+
+.remove-btn {
+    margin-top: 0;
+}
+
+.add-btn:hover,
+.remove-btn:hover,
+.save-btn:hover,
+.cancel-btn:hover {
+    background-color: #e63939;
+}
+
+.suggest-item,
+.file-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.suggest-item input[type="text"],
+.file-item input[type="file"] {
+    flex: 1;
+    margin-right: 0.5rem;
+}
+
+.form-group input[type="file"] {
+    border: 1px solid #ff3f3f;
+    background-color: #fff0f0;
+    padding: 8px;
+    border-radius: 4px;
+    color: #ff3f3f;
+    cursor: pointer;
+    width: 100%;
+}
+
+.form-group input[type="file"]::file-selector-button {
+    background-color: #ff3f3f;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.form-group input[type="file"]::file-selector-button:hover {
+    background-color: #e63939;
+}
+
+.preview-image {
+    margin-top: 10px;
+    max-width: 100px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+</style>

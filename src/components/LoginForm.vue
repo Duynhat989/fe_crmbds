@@ -63,7 +63,16 @@ const handleLogin = async (event) => {
     <input type="text" v-model="email" placeholder="Tài khoản" required />
     <input type="password" v-model="password" placeholder="Mật khẩu" required />
     <button type="submit" :disabled="isLoading">
-      <span v-if="isLoading"><i class='bx bx-loader-circle'></i> Đăng đăng nhâp ...</span>
+      <span v-if="isLoading">
+        <svg style="margin-bottom: -3px;"  xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z"
+            opacity="0.5" />
+          <path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z">
+            <animateTransform attributeName="transform" dur="1s" from="0 12 12" repeatCount="indefinite" to="360 12 12"
+              type="rotate" />
+          </path>
+        </svg>
+        Đăng đăng nhâp ...</span>
       <span v-else>Đăng nhập</span>
     </button>
     <span class="forgot-password" @click="switchToForgotPassword">Quên mật khẩu</span>

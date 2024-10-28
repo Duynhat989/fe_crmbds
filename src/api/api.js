@@ -40,8 +40,7 @@ export const END_POINT = {
 
     // Files APIs
     FILE_UPLOAD: '/api/file/upload', // Upload file
-    FILE_DELETE: '/api/file/file-ZSNH47eGFS5wvCrvh12NtxzS', // Xóa file
-
+    FILE_DELETE: (fileId) => `/api/file/${fileId}`,
     // Setup APIs
     SETUP: '/api/setup', // Tải cài đặt
 };

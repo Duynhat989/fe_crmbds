@@ -64,7 +64,7 @@ onMounted(() => {
           <tr v-for="(item, index) in users" :key="index">
             <td  style="text-align: center;" :data-id="item.id">{{ index }}</td>
             <td style="max-width: 200px;">{{ item.name }}</td>
-            <td>{{ item.name }}</td>
+            <td>{{ item.phone }}</td>
             <td>{{ item.email }}</td>
             <td>{{ item.role == 1 ? 'Quản trị viên':'Người dùng' }}</td>
             <td>Miễn phí</td>
