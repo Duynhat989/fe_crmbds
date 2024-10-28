@@ -11,21 +11,22 @@ const selectedPackage = ref(null)
 const isEdit = ref(false)
 
 const currentPage = ref(1);
-const itemsPerPage = ref(2);
+const itemsPerPage = ref(8);
 
-const featureOptions = ref([
-  { type: "course", id: 1, name: "Khóa học" },
-  { type: "assistant", id: 2, name: "Trợ lý" }
-]);
 
 const getFeatureNames = (features) => {
-  if (!features) return '';
-  const parsedFeatures = typeof features === 'string' ? JSON.parse(features) : features;
+  if (typeof features === 'string') {
+    try {
+      features = JSON.parse(features); 
+      console.log(features);
+    } catch (error) {
+      return '';
+    }
+  }
 
-  return parsedFeatures
-    .map(f => featureOptions.value.find(option => option.id === f.id)?.name || '')
-    .filter(Boolean) 
-    .join(', ');
+  if (!Array.isArray(features)) return '';
+
+  return features.map(feature => feature.type).join(', ');
 };
 
 const addNewPackage = () => {
@@ -115,9 +116,9 @@ onMounted(() => {
       <h1 class="title">Gói cước AnPhatHung.AI</h1>
     </div>
     <div class="main-content">
-      <div class="group-button">
+      <!-- <div class="group-button">
         <button class="button" @click="addNewPackage"><i class='bx bxs-user-plus'></i> Thêm gói cước</button>
-      </div>
+      </div> -->
       <table class="table" style="border: 1px solid rgba(128, 128, 128, 0.288);;padding: 10px;">
         <thead>
           <tr>
@@ -151,7 +152,7 @@ onMounted(() => {
           {{ page }}</span>
       </div>
     </div>
-    <PackagePopup v-if="showPopup" :featureOptions="featureOptions" :package="selectedPackage" :isEdit="isEdit" @close="closePopup" @saved="fetchPackages" />
+    <PackagePopup v-if="showPopup"  :package="selectedPackage" :isEdit="isEdit" @close="closePopup" @saved="fetchPackages" />
   </div>
 
 </template>

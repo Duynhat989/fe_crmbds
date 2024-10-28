@@ -39,7 +39,9 @@ const courseData = ref({
     detail: '',
     image: '',
     status: 1,
-    lessons: []
+    price:0,
+    sign_in:[],
+    lessons: "[]"
 })
 
 watch(
@@ -57,6 +59,8 @@ watch(
                 detail: '',
                 image: '',
                 status: 1,
+                price:0,
+                sign_in:"[]",
                 lessons: []
             }
         }
@@ -71,7 +75,7 @@ const addLesson = () => {
         image: '',
         indexRow: courseData.value.lessons.length + 1,
         url_video: '',
-        course_id: courseData.value.id,
+        course_id: 0,
         isHidden: false
     })
 }
@@ -100,11 +104,15 @@ const submitForm = async () => {
         const dataToSubmit = {
             ...courseData.value,
         };
-
         let response;
         response = await request.post(props.isEdit ? END_POINT.COURSE_UPDATE : END_POINT.COURSE_CREATE, dataToSubmit);
         if (!response.success) throw new Error('Lỗi khi xử lý khóa học');
-        const courseId = props.isEdit ? dataToSubmit.id : response.course_id;
+        const courseId = props.isEdit ? dataToSubmit.id : response.data.id;
+        courseData.value.lessons = courseData.value.lessons.map(lesson => ({
+            ...lesson,
+            course_id: courseId
+        }));
+
         await handleLessons(courseId, courseData.value.lessons);
         emit('saved');
         notify({

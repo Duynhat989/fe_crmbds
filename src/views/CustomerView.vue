@@ -110,10 +110,6 @@ onMounted(() => {
       <h1 class="title">Danh sách người dùng</h1>
     </div>
     <div class="main-content">
-      <div class="group-button">
-        <button class="button"><i class='bx bxs-user-plus'></i> Thêm người dùng</button>
-        <!-- <button class="button"><i class='bx bx-edit-alt'></i> Chỉnh sửa</button> -->
-      </div>
       <table class="table" style="border: 1px solid rgba(128, 128, 128, 0.288);;padding: 10px;">
         <thead>
           <tr>

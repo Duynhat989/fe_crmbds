@@ -11,7 +11,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close', 'saved'])
-
+const courses = ref([]);
+const assistants = ref([]);
 const packageData = ref({
     id: null,
     name: '',
@@ -20,6 +21,23 @@ const packageData = ref({
     features: [],
     requests: 0
 })
+
+const fetchCourses = async () => {
+  try {
+    const response = await request.get(END_POINT.COURSES_LIST);
+    courses.value = response.courses;
+  } catch (error) {
+    console.error('Lỗi lấy danh sách trợ lý:', error);
+  }
+};
+const fetchAssistants = async () => {
+  try {
+    const response = await request.get(END_POINT.ASSISTANTS_LIST);
+    assistants.value = response.data;
+  } catch (error) {
+    console.error('Lỗi lấy danh sách trợ lý:', error);
+  }
+};
 
 const isFeatureSelected = (feature) => {
     return packageData.value.features.some(f => f.id === feature.id)
@@ -44,6 +62,8 @@ watch(
                     : JSON.parse(newPackage.features || '[]')
             };
             packageData.value = newPackageUp;
+            fetchCourses();
+            fetchAssistants();
         } else {
             packageData.value = {
                 id: null,
@@ -122,14 +142,20 @@ const submitForm = async () => {
                     <label for="price">Giá tiền:</label>
                     <input type="number" id="price" v-model="packageData.price" required />
                 </div>
-                <div class="form-group">
-                    <label>Tính năng:</label>
-                    <div v-for="(feature, index) in featureOptions" :key="index" class="checkbox-item">
-                        <input type="checkbox" :value="feature.id" :id="'feature-' + feature.id"
-                            @change="toggleFeature(feature)" :checked="isFeatureSelected(feature)" />
-                        <label :for="'feature-' + feature.id">
-                            {{ feature.name }} (ID: {{ feature.id }})
-                        </label>
+                <div class="form-group feature">
+                    <label>Tính năng khóa học:</label>
+                    <div v-for="course in courses" :key="'course-' + course.id" class="checkbox-item">
+                        <input type="checkbox" :id="'course-' + course.id" :value="course"
+                               :checked="isFeatureSelected({ type: 'course', id: course.id })"
+                               @change="toggleFeature({ type: 'course', id: course.id })">
+                        <label :for="'course-' + course.id">{{ course.name }}</label>
+                    </div>
+                    <label>Tính năng trợ lý:</label>
+                    <div v-for="assistant in assistants" :key="'assistant-' + assistant.id" class="checkbox-item">
+                        <input type="checkbox" :id="'assistant-' + assistant.id" :value="assistant"
+                               :checked="isFeatureSelected({ type: 'assistant', id: assistant.id })"
+                               @change="toggleFeature({ type: 'assistant', id: assistant.id })">
+                        <label :for="'assistant-' + assistant.id">{{ assistant.name }}</label>
                     </div>
                 </div>
                 <div class="form-group">
@@ -179,6 +205,14 @@ const submitForm = async () => {
 
 .form-group {
     margin-bottom: 1rem;
+}
+.form-group.feature {
+    max-height: 200px; 
+    overflow-y: auto; 
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
 }
 
 .form-group label {

@@ -2,15 +2,17 @@
 import { ref, computed, onMounted, watch } from "vue";
 import store from '@/store';
 
-import { useRouter, RouterView } from 'vue-router'
+import { useRouter, RouterView, useRoute } from 'vue-router'
 import { Notifications } from "@kyvg/vue3-notification";
-
 const isLogin = computed(() => store.getters.isLogin);
 const user = computed(() => store.getters.getUser);
+const currentRoute = computed(() => route.path);
+
 const hiddenPopup = ref(false);
 const isBodyFull = ref(false);
 
 const router = useRouter();
+const route = useRoute();
 // check screen < 1024
 const checkScreenSize = () => {
   hiddenPopup.value = window.innerWidth < 1024;
@@ -22,7 +24,6 @@ watch(hiddenPopup, (newType) => {
     isBodyFull.value = true;
   }
 });
-
 onMounted(() => {
   checkScreenSize();
   window.addEventListener('resize', checkScreenSize);
@@ -51,26 +52,26 @@ const handleLogOut = async (event) => {
           </div>
         </div>
         <ul class="menu">
-          <li class="menu_item">
+          <li :class="{ active: currentRoute === '/customer' }" class="menu_item">
             <a href="/customer" class="button"><i class='bx bxs-user-account'></i> <span>Quản lý khách hàng</span></a>
           </li>
-          <li class="menu_item">
+          <li :class="{ active: currentRoute === '/assistant' }" class="menu_item">
             <a href="/assistant" class="button"><i class='bx bx-equalizer'></i> <span>Quản lý trợ lý</span></a>
           </li>
-          <li class="menu_item">
-            <a href="/contract" class="button"><i class='bx bx-book-content' ></i> <span>Quản lý hợp đồng</span></a>
+          <li :class="{ active: currentRoute === '/contract' }" class="menu_item">
+            <a href="/contract" class="button"><i class='bx bx-book-content'></i> <span>Quản lý hợp đồng</span></a>
           </li>
-          <li class="menu_item">
-            <a href="/search" class="button"><i class='bx bx-search' ></i> <span>Quản lý tìm kiếm</span></a>
+          <li :class="{ active: currentRoute === '/search' }" class="menu_item">
+            <a href="/search" class="button"><i class='bx bx-search'></i> <span>Quản lý tìm kiếm</span></a>
           </li>
-          <li class="menu_item">
+          <li :class="{ active: currentRoute === '/course' }" class="menu_item">
             <a href="/course" class="button"><i class='bx bx-movie-play'></i> <span>Quản lý khóa học</span></a>
           </li>
-          <li class="menu_item">
+          <li :class="{ active: currentRoute === '/license' }" class="menu_item">
             <a href="/license" class="button"><i class='bx bx-check-shield'></i> <span>Điều chỉnh gói cước</span></a>
           </li>
-          <li class="menu_item">
-            <a href="/setting" class="button"><i class='bx bx-cog' ></i> <span>Cài đặt chung</span></a>
+          <li :class="{ active: currentRoute === '/setting' }" class="menu_item">
+            <a href="/setting" class="button"><i class='bx bx-cog'></i> <span>Cài đặt chung</span></a>
           </li>
         </ul>
         <div class="user">
@@ -194,12 +195,13 @@ li {
   background-color: #e03d31;
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
-
+.menu .active,
 .menu_item:hover {
   background-color: #f4d1ce;
   cursor: pointer;
-}
 
+}
+.menu .active .button,
 .menu_item:hover .button {
   color: black;
 }

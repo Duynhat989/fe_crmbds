@@ -8,10 +8,9 @@ import { notify } from '@kyvg/vue3-notification';
 const packages = ref([]);
 const license = ref({});
 const userData = ref({
-    id: 1,
-    name: "Hoàng Văn Nam",
-    phone: "04954594545",
-    email: "45345345345",
+    name: "",
+    phone: "",
+    email: "",
     role: 1,
     license: null
 })
@@ -72,7 +71,6 @@ const closePopup = () => {
 const submitForm = async () => {
     try {
         if (props.isEdit) {
-            console.log(userData.value);
             const response = await request.post(END_POINT.USER_UPDATE, userData.value)
             if (response.success) {
                 

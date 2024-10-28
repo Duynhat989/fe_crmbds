@@ -4,17 +4,17 @@ import 'vue3-carousel/dist/carousel.css'
 import { END_POINT } from '@/api/api';
 import request from '@/utils/request';
 import CoursePopup from '@/components/CoursePopup.vue';
+import { notify } from '@kyvg/vue3-notification';
 const courses = ref([]);
 const showPopup = ref(false)
 const selectedCourse = ref(null)
 const isEdit = ref(false)
 
 
-
 const addNewCourse = () => {
   showPopup.value = true;
   selectedCourse.value = null,
-  isEdit.value = false
+    isEdit.value = false
 };
 
 
@@ -59,6 +59,39 @@ const fetchCourses = async () => {
   }
 };
 
+const confirmDelete = (id) => {
+  if (confirm("Bạn có chắc chắn muốn xóa khóa học này vĩnh viễn?")) {
+    deleteCourse(id)
+  }
+}
+
+const deleteCourse = async (id) => {
+  try {
+    const response = await request.delete(END_POINT.COURSE_DELETE, {
+      data: JSON.stringify({ id: id })
+    });
+    courses.value = courses.value.filter(course => course.id !== id)
+    if (response.success) {
+      // Xóa tất cả các bài học có id
+      const response = await request.delete(END_POINT.LESSON_IN_cOURSE_DELETE, {
+        data: JSON.stringify({ id: id })
+      });
+      notify({
+        title: 'Thành công',
+        text: 'Xóa khóa học thành công ',
+        type: 'success'
+      });
+    }
+  } catch (error) {
+    console.error('Lỗi khi xóa khóa học:', error)
+    notify({
+      title: 'Lỗi',
+      text: 'Xóa khóa học thất bại. Vui lòng thử lại. ',
+      type: 'error'
+    });
+  }
+}
+
 onMounted(() => {
   fetchCourses();
 });
@@ -74,7 +107,7 @@ onMounted(() => {
     </div>
     <div class="main-content">
       <div class="group-button">
-        <button class="button"  @click="addNewCourse"><i class='bx bx-video-plus' ></i> Thêm khóa học</button>
+        <button class="button" @click="addNewCourse"><i class='bx bx-video-plus'></i> Thêm khóa học</button>
       </div>
       <table class="table" style="border: 1px solid rgba(128, 128, 128, 0.288);;padding: 10px;">
         <thead>
@@ -83,13 +116,13 @@ onMounted(() => {
             <th>Hình ảnh</th>
             <th>Tên khóa học</th>
             <th>Mô tả</th>
-            <th >Trạng thái</th>
+            <th>Trạng thái</th>
             <th style="width: 150px;"></th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(item, index) in paginatedItems" :key="index">
-            <td  style="text-align: center;" :data-id="item.id">{{ index }}</td>
+            <td style="text-align: center;" :data-id="item.id">{{ index }}</td>
             <td style="max-width: 200px;"><img :src="item.image" alt="Hình ảnh"></td>
             <td style="max-width: 150px;">{{ item.name }}</td>
             <td class="detail">{{ item.detail }}</td>
@@ -109,7 +142,8 @@ onMounted(() => {
           {{ page }}</span>
       </div>
     </div>
-    <CoursePopup v-if="showPopup" :selectedCourse="selectedCourse" :isEdit="isEdit" @close="closePopup" @saved="fetchCourses" />
+    <CoursePopup v-if="showPopup" :selectedCourse="selectedCourse" :isEdit="isEdit" @close="closePopup"
+      @saved="fetchCourses" />
 
   </div>
 
@@ -154,6 +188,7 @@ onMounted(() => {
   background-color: #e03d31;
   color: white;
 }
+
 .main-content {
   width: 100%;
 }
@@ -170,30 +205,36 @@ onMounted(() => {
   width: 100%;
   margin-bottom: 3px;
 }
-.button:hover{
+
+.button:hover {
   background-color: #e03d31;
   color: white;
   cursor: pointer;
 }
+
 .input {
   padding: 8px 10px;
   border: 1px solid rgba(128, 128, 128, 0.226);
   cursor: pointer;
 }
-.input:focus{
+
+.input:focus {
   outline: none;
 }
+
 td {
   padding: 5px 10px;
   border-top: 1px solid rgba(128, 128, 128, 0.288);
   border-left: 1px solid rgba(128, 128, 128, 0.288);
   margin: 0;
 }
+
 td img {
   width: 80px;
   height: 80x;
   object-fit: contain;
 }
+
 td .detail {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -202,11 +243,12 @@ td .detail {
   text-overflow: ellipsis;
   text-align: justify;
 }
+
 td .active {
   color: #28a745;
 }
 
-td  .inactive {
+td .inactive {
   color: #dc3545;
 }
 
@@ -215,11 +257,13 @@ tr:hover {
   background-color: #e03d315b;
   cursor: pointer;
 }
-.group-button{
+
+.group-button {
   margin-right: 5px;
   margin-bottom: 10px;
 }
-.group-button .button{
+
+.group-button .button {
   padding: 8px 10px;
   margin-right: 5px;
   border: 1px solid rgba(128, 128, 128, 0);
@@ -230,12 +274,14 @@ tr:hover {
   background-color: #e03d31;
   color: white;
 }
-.group-button .button:hover{
+
+.group-button .button:hover {
   border: 1px solid #e03d31;
   background-color: #ffffff;
   color: rgb(255, 0, 0);
   cursor: pointer;
 }
+
 .pagination {
   width: 100%;
   margin-top: 20px;
@@ -255,6 +301,7 @@ tr:hover {
 
   color: #fff;
 }
+
 /* Responsive Styles */
 @media (max-width: 1200px) {
   .main-container {
