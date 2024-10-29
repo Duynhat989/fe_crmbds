@@ -63,7 +63,6 @@ const addSuggestion = () => {
 };
 
 const removeSuggestion = (index) => {
-    console.log(assistantData.value.suggests);
     assistantData.value.suggests.splice(index, 1);
 };
 
@@ -112,19 +111,19 @@ const uploadFile = async (file) => {
         return null;
     }
 };
-const deleteFile = async (fileId) => {
-    try {
-        await request.delete(END_POINT.FILE_DELETE(fileId));
-    } catch (error) {
-        console.error("File deletion error:", error);
-        notify({
-            title: 'Lỗi',
-            text: 'Xóa file thất bại, vui lòng thử lại sau.',
-            type: 'error'
-        });
-        return false;
-    }
-};
+// const deleteFile = async (fileId) => {
+//     try {
+//         await request.delete(END_POINT.FILE_DELETE(fileId));
+//     } catch (error) {
+//         console.error("File deletion error:", error);
+//         notify({
+//             title: 'Lỗi',
+//             text: 'Xóa file thất bại, vui lòng thử lại sau.',
+//             type: 'error'
+//         });
+//         return false;
+//     }
+// };
 
 
 const removeFile = async (index) => {
@@ -176,7 +175,6 @@ const submitForm = async () => {
     try {
         let response;
         if (assistant_id.value) {
-            console.log(dataToSubmit);
             response = await request.post(END_POINT.ASSISTANT_UPDATE, dataToSubmit);
         } else {
             response = await request.post(END_POINT.ASSISTANT_CREATE, dataToSubmit);

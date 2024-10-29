@@ -9,7 +9,6 @@ const fetchCourses = async () => {
         const response = await request.post(END_POINT.COURSE_FIND, {
             "id": courseData.value.id
         });
-        console.log(response.success, response.success)
 
         if (response.success) {
             courseData.value.lessons = response.data.lessons.map(lesson => ({
@@ -17,7 +16,6 @@ const fetchCourses = async () => {
                 isHidden: true
             }));
         }
-        console.log(courseData.value)
     } catch (error) {
         console.error('Không thể tải danh sách bài học', error)
     }
@@ -39,8 +37,8 @@ const courseData = ref({
     detail: '',
     image: '',
     status: 1,
-    price:0,
-    sign_in:[],
+    price: 0,
+    sign_in: [],
     lessons: "[]"
 })
 
@@ -59,8 +57,8 @@ watch(
                 detail: '',
                 image: '',
                 status: 1,
-                price:0,
-                sign_in:"[]",
+                price: 0,
+                sign_in: "[]",
                 lessons: []
             }
         }
@@ -80,10 +78,34 @@ const addLesson = () => {
     })
 }
 
-const removeLesson = (index) => {
-    courseData.value.lessons.splice(index, 1)
+const removeLesson = (id, name) => {
+    if (confirm(`Bạn có chắc chắn muốn xóa bài học ${name} này vĩnh viễn?`)) {
+        deleteLesson(id)
+    }
 }
 
+const deleteLesson = async (id) => {
+    try {
+        const response = await request.delete(END_POINT.LESSON_DELETE, {
+            data: JSON.stringify({ id: id })
+        });
+        if (response.success) {
+            courseData.value.lessons = courseData.value.lessons.filter(lessons => lessons.id !== id)
+            notify({
+                title: 'Thành công',
+                text: 'Xóa bài học thành công ',
+                type: 'success'
+            });
+        }
+    } catch (error) {
+        console.error('Lỗi khi xóa bài học:', error)
+        notify({
+            title: 'Lỗi',
+            text: 'Xóa bài học thất bại. Vui lòng thử lại. ',
+            type: 'error'
+        });
+    }
+}
 const closePopup = () => {
     emit('close')
 }
@@ -141,7 +163,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="popup-overlay"  @click.self="closePopup">
+    <div class="popup-overlay" @click.self="closePopup">
         <div class="popup-container">
             <button class="close-btn" @click="closePopup"><i class="bx bxs-x-circle"></i></button>
             <h2>{{ isEdit ? 'Chỉnh sửa Khóa Học' : 'Thêm Khóa Học Mới' }}</h2>
@@ -174,9 +196,9 @@ onMounted(() => {
                 <!-- Thêm các bài học -->
                 <div class="lessons-section">
                     <h3>Bài học kèm theo</h3>
-                    <div v-for="(lesson, index) in courseData.lessons" :key="index" class="lesson-item">
+                    <div v-for="(lesson, index) in courseData.lessons" :key="lesson.id" class="lesson-item">
                         <button type="button" class="toggle-lesson-btn" @click="toggleLessonVisibility(index)">
-                            <i v-if="lesson.isHidden"class='bx bxs-show'></i>
+                            <i v-if="lesson.isHidden" class='bx bxs-show'></i>
                             <i v-else class="bx bx-filter"></i>
                         </button>
 
@@ -209,7 +231,8 @@ onMounted(() => {
                                 <input type="text" v-model="lesson.url_video" placeholder="Nhập URL video" required />
                             </div>
 
-                            <button type="button" class="remove-lesson-btn" @click="removeLesson(index)">Xóa bài
+                            <button type="button" class="remove-lesson-btn"
+                                @click="removeLesson(lesson.id, lesson.name)">Xóa bài
                                 học</button>
                         </div>
                     </div>
@@ -249,6 +272,7 @@ onMounted(() => {
     max-height: 90vh;
     position: relative;
 }
+
 .close-btn {
     position: absolute;
     top: 10px;
@@ -264,6 +288,7 @@ onMounted(() => {
 .close-btn:hover {
     opacity: 0.8;
 }
+
 .popup-container h2 {
     font-size: 26px;
     color: #e63939;

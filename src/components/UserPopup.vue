@@ -80,7 +80,6 @@ const submitForm = async () => {
                     date: license.value.date,
                     id: license.value.id
                 }
-                console.log(licenseData);
                 await request.post(END_POINT.LICENSE_UPDATE, licenseData)
                 notify({
                     title: 'Thành công',
