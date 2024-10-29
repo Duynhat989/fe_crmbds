@@ -72,10 +72,6 @@ const deleteCourse = async (id) => {
     });
     courses.value = courses.value.filter(course => course.id !== id)
     if (response.success) {
-      // Xóa tất cả các bài học có id
-      const response = await request.delete(END_POINT.LESSON_IN_cOURSE_DELETE, {
-        data: JSON.stringify({ id: id })
-      });
       notify({
         title: 'Thành công',
         text: 'Xóa khóa học thành công ',

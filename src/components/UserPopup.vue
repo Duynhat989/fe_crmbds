@@ -77,9 +77,10 @@ const submitForm = async () => {
                 const licenseData = {
                     user_id: userData.value.id,
                     pack_id: userData.value.license,
-                    date: format(new Date(), 'yyyy-MM-dd'),
+                    date: license.value.date,
                     id: license.value.id
                 }
+                console.log(licenseData);
                 await request.post(END_POINT.LICENSE_UPDATE, licenseData)
                 notify({
                     title: 'Thành công',
@@ -101,8 +102,9 @@ const submitForm = async () => {
 </script>
 
 <template>
-    <div class="popup-overlay" @click.self="closePopup">
+    <div class="popup-overlay">
         <div class="popup-container">
+            <button class="close-btn" @click="closePopup"><i class="bx bxs-x-circle"></i></button>
             <h2>Cập nhật Thông Tin Người Dùng</h2>
             <form @submit.prevent="submitForm">
                 <div class="form-row">
@@ -175,8 +177,24 @@ const submitForm = async () => {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    position: relative;
 }
 
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #ae3636;
+    transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+    opacity: 0.8;
+}
 .popup-container h2 {
     font-size: 26px;
     color: #e63939;

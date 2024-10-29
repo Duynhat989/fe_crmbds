@@ -19,7 +19,7 @@ const assistantData = ref({
 
 const fetchAssistantFind = async () => {
     try {
-        if(assistant_id.value !== null ) {
+        if (assistant_id.value !== null) {
             const response = await request.post(END_POINT.ASSISTANT_FIND, { id: assistant_id.value });
             assistantData.value = {
                 ...response.data,
@@ -53,7 +53,7 @@ function getDefaultAssistantData() {
 }
 const closePopup = () => {
     emit('close');
-    assistantData.value= getDefaultAssistantData();
+    assistantData.value = getDefaultAssistantData();
 };
 const addSuggestion = () => {
     if (!assistantData.value.suggests) {
@@ -146,8 +146,8 @@ const removeFile = async (index) => {
     //     }
     //     console.log(assistantData.value,pendingFiles.value);
     // } else {
-        assistantData.value.file_ids.splice(index, 1);
-        pendingFiles.value.splice(index, 1);
+    assistantData.value.file_ids.splice(index, 1);
+    pendingFiles.value.splice(index, 1);
     // }
     // console.log('pending',pendingFiles.value,assistantData.value)
 
@@ -177,7 +177,7 @@ const submitForm = async () => {
         let response;
         if (assistant_id.value) {
             console.log(dataToSubmit);
-            response = await request.post(END_POINT.ASSISTANT_UPDATE, dataToSubmit );
+            response = await request.post(END_POINT.ASSISTANT_UPDATE, dataToSubmit);
         } else {
             response = await request.post(END_POINT.ASSISTANT_CREATE, dataToSubmit);
         }
@@ -213,9 +213,10 @@ onMounted(() => {
 });
 </script>
 <template>
-    <div class="popup-overlay" @click.self="closePopup">
+    <div class="popup-overlay">
         <div class="popup-container">
             <h2>{{ editAssistantId ? 'Chỉnh sửa Trợ Lý' : 'Thêm Trợ Lý Mới' }}</h2>
+            <button class="close-btn" @click="closePopup"><i class="bx bxs-x-circle"></i></button>
             <form @submit.prevent="submitForm">
                 <!-- Cột bên trái -->
                 <div class="form-row">
@@ -300,6 +301,7 @@ onMounted(() => {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
+    position: relative;
 }
 
 .popup-container h2 {
@@ -309,6 +311,22 @@ onMounted(() => {
     margin-bottom: 5px;
     width: 100%;
     text-align: center;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #ae3636;
+    transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+    opacity: 0.8;
 }
 
 .form-group {

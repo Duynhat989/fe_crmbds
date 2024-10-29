@@ -15,10 +15,10 @@ const itemsPerPage = ref(8);
 
 
 const getFeatureNames = (features) => {
+  console.log(features);
   if (typeof features === 'string') {
     try {
       features = JSON.parse(features); 
-      console.log(features);
     } catch (error) {
       return '';
     }
@@ -26,7 +26,7 @@ const getFeatureNames = (features) => {
 
   if (!Array.isArray(features)) return '';
 
-  return features.map(feature => feature.type).join(', ');
+  return features.map(feature => feature.name).join( `<br>`);
 };
 
 const addNewPackage = () => {
@@ -137,7 +137,7 @@ onMounted(() => {
             <td style="max-width: 200px;">{{ item.name }}</td>
             <td>{{ item.description }}</td>
             <td>{{ item.price }}</td>
-            <td>{{ getFeatureNames(item.features) }}</td>
+            <td v-html="getFeatureNames(item.features)"></td>
             <td>{{ item.ask }}</td>
             <td class="table-button">
               <button class="button" @click="openPopup(item, true)"><i class='bx bx-edit-alt'></i> Chỉnh sửa</button>

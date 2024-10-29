@@ -141,8 +141,9 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="popup-overlay" @click.self="closePopup">
+    <div class="popup-overlay"  @click.self="closePopup">
         <div class="popup-container">
+            <button class="close-btn" @click="closePopup"><i class="bx bxs-x-circle"></i></button>
             <h2>{{ isEdit ? 'Chỉnh sửa Khóa Học' : 'Thêm Khóa Học Mới' }}</h2>
             <form @submit.prevent="submitForm">
                 <div class="form-group">
@@ -246,8 +247,23 @@ onMounted(() => {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     overflow-y: auto;
     max-height: 90vh;
+    position: relative;
+}
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #ae3636;
+    transition: color 0.2s ease;
 }
 
+.close-btn:hover {
+    opacity: 0.8;
+}
 .popup-container h2 {
     font-size: 26px;
     color: #e63939;

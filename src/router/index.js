@@ -2,12 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AssistantView from '../views/AssistantView.vue'
 import CustomerView from '../views/CustomerView.vue'
-import AssistantDetail from '@/views/AssistantDetail.vue'
 import store from '@/store';
 import SearchView from '@/views/SearchView.vue';
 import ContractView from '@/views/ContractView.vue';
 import CourseView from '@/views/CourseView.vue';
-import CourseDetail from '@/views/CourseDetail.vue';
 import SetupView from '@/views/SetupView.vue';
 import PackageView from '@/views/PackageView.vue';
 const router = createRouter({
@@ -38,12 +36,6 @@ const router = createRouter({
       meta: { requiresAuth: true } 
     },
     {
-      path: '/assistant/:id',
-      name: 'assistantDetail',
-      component: AssistantDetail,
-      meta: { requiresAuth: true } 
-    },
-    {
       path: '/contract',
       name: 'contract',
       component: ContractView ,
@@ -65,12 +57,6 @@ const router = createRouter({
       path: '/course',
       name: 'course',
       component: CourseView ,
-      meta: { requiresAuth: true } 
-    },
-    {
-      path: '/course/:id',
-      name: 'courseDetail',
-      component: CourseDetail ,
       meta: { requiresAuth: true } 
     },
     {

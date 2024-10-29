@@ -46,7 +46,7 @@ const isFeatureSelected = (feature) => {
 const toggleFeature = (feature) => {
     const index = packageData.value.features.findIndex(f => f.id === feature.id)
     if (index === -1) {
-        packageData.value.features.push({ type: feature.type, id: feature.id })
+        packageData.value.features.push({ type: feature.type, id: feature.id , name: feature.name })
     } else {
         packageData.value.features.splice(index, 1)
     }
@@ -126,6 +126,7 @@ const submitForm = async () => {
 <template>
     <div class="popup-overlay" @click.self="closePopup">
         <div class="popup-container">
+            <button class="close-btn" @click="closePopup"><i class="bx bxs-x-circle"></i></button>
             <h2>{{ isEdit ? 'Chỉnh sửa Gói Cước' : 'Thêm Gói Cước Mới' }}</h2>
             <form @submit.prevent="submitForm">
                 <div class="form-group">
@@ -146,15 +147,15 @@ const submitForm = async () => {
                     <label>Tính năng khóa học:</label>
                     <div v-for="course in courses" :key="'course-' + course.id" class="checkbox-item">
                         <input type="checkbox" :id="'course-' + course.id" :value="course"
-                               :checked="isFeatureSelected({ type: 'course', id: course.id })"
-                               @change="toggleFeature({ type: 'course', id: course.id })">
+                               :checked="isFeatureSelected({ type: 'course', id: course.id , name: course.name })"
+                               @change="toggleFeature({ type: 'course', id: course.id,  name: course.name })">
                         <label :for="'course-' + course.id">{{ course.name }}</label>
                     </div>
                     <label>Tính năng trợ lý:</label>
                     <div v-for="assistant in assistants" :key="'assistant-' + assistant.id" class="checkbox-item">
                         <input type="checkbox" :id="'assistant-' + assistant.id" :value="assistant"
-                               :checked="isFeatureSelected({ type: 'assistant', id: assistant.id })"
-                               @change="toggleFeature({ type: 'assistant', id: assistant.id })">
+                               :checked="isFeatureSelected({ type: 'assistant', id: assistant.id , name: assistant.name })"
+                               @change="toggleFeature({ type: 'assistant', id: assistant.id , name: assistant.name })">
                         <label :for="'assistant-' + assistant.id">{{ assistant.name }}</label>
                     </div>
                 </div>
@@ -188,11 +189,28 @@ const submitForm = async () => {
 
 .popup-container {
     width: 90%;
-    max-width: 500px;
+    max-width: 750px;
     background-color: #fff;
     border-radius: 8px;
     padding: 2rem;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #ae3636;
+    transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+    opacity: 0.8;
 }
 
 .popup-container h2 {
