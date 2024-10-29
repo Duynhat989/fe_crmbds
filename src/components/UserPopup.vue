@@ -2,7 +2,6 @@
 import { ref, onMounted, watch } from 'vue'
 import request from '@/utils/request'
 import { END_POINT } from '@/api/api'
-import { format } from 'date-fns'
 import { notify } from '@kyvg/vue3-notification';
 
 const packages = ref([]);
@@ -51,6 +50,7 @@ const fetchLicenses = async () => {
         });
         if (response.success) {
             license.value = response.license
+            userData.value.date = license.value.date
         }
     } catch (error) {
         console.error('Không thể tải danh sách gói cước:', error)
@@ -77,7 +77,7 @@ const submitForm = async () => {
                 const licenseData = {
                     user_id: userData.value.id,
                     pack_id: userData.value.license,
-                    date: license.value.date,
+                    date: userData.value.date,
                     id: license.value.id
                 }
                 await request.post(END_POINT.LICENSE_UPDATE, licenseData)
@@ -122,7 +122,10 @@ const submitForm = async () => {
                             <label for="email">Email:</label>
                             <input type="email" id="email" v-model="userData.email" required />
                         </div>
-
+                        <div class="form-group">
+                            <label for="expiredDate">Ngày hết hạn:</label>
+                            <input type="date" id="expiredDate" v-model="userData.date" required />
+                        </div>
                         <div class="form-group">
                             <label for="role">Vai Trò:</label>
                             <select id="role" v-model="userData.role" required>
@@ -216,6 +219,7 @@ const submitForm = async () => {
 .form-group input[type="text"],
 .form-group input[type="tel"],
 .form-group input[type="email"],
+.form-group input[type="date"],
 .form-group select {
     width: 100%;
     padding: 0.5rem;
@@ -224,6 +228,7 @@ const submitForm = async () => {
     font-size: 1rem;
     background-color: #fff0f0;
     color: #333;
+    cursor: pointer;
 }
 
 .form-actions {
