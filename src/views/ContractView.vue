@@ -1,83 +1,166 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import 'vue3-carousel/dist/carousel.css'
-import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
-import { useRouter } from 'vue-router';
 import { END_POINT } from '@/api/api';
 import request from '@/utils/request';
-import { encodeId } from '@/utils/encoding';
-const router = useRouter();
-const viewType = ref('list');
-const users = ref([]);
-const currentPage = ref(1);
-const itemsPerPage = ref(8);
+import ContractPopup from '@/components/ContractPopup.vue';
 
-const handleClick = (id) => {
-  const encodedId = encodeId(id);
-  router.push(`/assistant/${encodedId}`);
+
+const contracts = ref([]);
+const showPopup = ref(false)
+const selectedContract = ref(null)
+const isEdit = ref(false)
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+
+
+const openPopup = (contract = null, edit = false) => {
+  selectedContract.value = contract
+  isEdit.value = edit
+  showPopup.value = true
+}
+const addNewContract = () => {
+  showPopup.value = true;
+  selectedContract.value = null,
+  isEdit.value = false
 };
 
-const fetchUsers = async () => {
+
+const closePopup = () => {
+  showPopup.value = false
+  selectedContract.value = null
+}
+
+
+const confirmDelete = (contractId) => {
+  if (confirm("Bạn có chắc chắn muốn xóa hợp đồng dùng này vĩnh viễn?")) {
+    deletecontract(contractId)
+  }
+}
+
+const deletecontract = async (contractId) => {
   try {
-    const response = await request.get(END_POINT.USER_LIST);
-    users.value = response.data;
+    const response = await request.delete(END_POINT.CONTRACT_DELETE, {
+      data: JSON.stringify({ id: contractId })
+    });
+    contracts.value = contracts.value.filter(contract => contract.id !== contractId)
+    if (response.success) {
+      notify({
+        title: 'Thành công',
+        text: 'Xóa hợp đồng thành công ',
+        type: 'success'
+      });
+    }
   } catch (error) {
-    console.error('Lỗi lấy danh sách trợ lý:', error);
+    console.error('Lỗi khi xóa hợp đồng:', error)
+    notify({
+      title: 'Lỗi',
+      text: 'Xóa hợp đồng thất bại. Vui lòng thử lại. ',
+      type: 'error'
+    });
+  }
+}
+
+
+const fetchContracts = async () => {
+  try {
+    const response = await request.get(END_POINT.CONTRACTS_LIST);
+    contracts.value = response.contracts;
+  } catch (error) {
+    console.error('Lỗi lấy danh sách hợp đồng:', error)
   }
 };
 
-const setView = (type) => {
-  viewType.value = type;
+const paginatedItems = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return contracts.value.slice(start, end);
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(contracts.value.length / itemsPerPage.value);
+});
+
+const changePage = (page) => {
+  if (page > 0 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+};
+function getFileName(filePath) {
+  return filePath.split('\\').pop();
+}
+const getInputNames = (input) => {
+  if (typeof input === 'string') {
+    try {
+      input = JSON.parse(input); 
+    } catch (error) {
+      return '';
+    }
+  }
+
+  if (!Array.isArray(input)) return '';
+
+  return input.map(item => item.title).join( `<br>`);
 };
 
 onMounted(() => {
-  fetchUsers();
+  fetchContracts();
 });
 
 </script>
 <template>
   <div class="main-container">
     <div class="change-type">
-      <button @click="setView('list')" :class="{ active: viewType === 'list' }">Danh sách</button>
+      <button class="list">Danh sách</button>
     </div>
     <div class="header-title">
       <h1 class="title">Danh sách hợp đồng</h1>
     </div>
     <div class="main-content">
       <div class="group-button">
-        <button class="button"><i class='bx bx-book-content' ></i> Thêm hợp đồng</button>
-        <!-- <button class="button"><i class='bx bx-edit-alt'></i> Chỉnh sửa</button> -->
+        <button class="button" @click="addNewContract"><i class='bx bx-message-square-add'></i> Thêm trợ lý</button>
       </div>
       <table class="table" style="border: 1px solid rgba(128, 128, 128, 0.288);;padding: 10px;">
         <thead>
           <tr>
-            <th>Số thứ tự</th>
-            <th>Tên người dùng</th>
-            <th >Số điện thoại</th>
-            <th >Email</th>
-            <th>Quyền</th>
-            <th>Gói cước</th>
-            <th style="width: 150px;"></th>
+            <th>STT</th>
+            <th>Hình ảnh</th>
+            <th>Tên hợp đồng</th>
+            <th>Mô tả</th>
+            <th>Mẫu hợp đồng</th>
+            <th>Tiêu đề đầu vào</th>
+            <th>Trạng thái</th>
+            <th>Ngày tạo</th>
+            <th style="width: 150px;">Hành động</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in users" :key="index">
-            <td  style="text-align: center;" :data-id="item.id">{{ index }}</td>
-            <td style="max-width: 200px;">{{ item.name }}</td>
-            <td>{{ item.name }}</td>
-            <td>{{ item.email }}</td>
-            <td>{{ item.role == 1 ? 'Quản trị viên':'Người dùng' }}</td>
-            <td>Miễn phí</td>
+          <tr v-for="(item, index) in paginatedItems" :key="item.id">
+            <td style="text-align: center;">{{ index + 1 }}</td>
+            <td><img :src="item.image" alt="Contract Image" style="width: 50px; height: auto;" /></td>
+            <td >{{ item.name }}</td>
+            <td>{{ item.description }}</td>
+            <td>{{ getFileName(item.template_contract)}}</td>
+            <td v-html="getInputNames(item.input)"></td>
+            <td>{{ item.status === 1 ? 'Hoạt động' : 'Ngừng' }}</td>
+            <td>{{ new Date(item.createdAt).toLocaleDateString() }}</td>
             <td class="table-button">
-              <button class="button"><i class='bx bx-edit-alt'></i> Chỉnh sửa</button>
-              <button class="button"><i class='bx bx-trash'></i> Xóa vĩnh viễn</button>
+              <button class="button" @click="openPopup(item, true)"><i class='bx bx-edit-alt'></i> Chỉnh sửa</button>
+              <button class="button" @click="confirmDelete(item.id)"><i class='bx bx-trash'></i> Xóa vĩnh viễn</button>
             </td>
           </tr>
         </tbody>
-      </table>
-    </div>
-  </div>
 
+      </table>
+      <div class="pagination">
+        <span @click="changePage(page)" v-for="(page, index) in totalPages" :class="{ active: currentPage === page }"
+          class="page-number">
+          {{ page }}</span>
+      </div>
+    </div>
+    <ContractPopup v-if="showPopup" :selectedContract="selectedContract" :isEdit="isEdit" @close="closePopup"
+      @saved="fetchContracts" />
+  </div>
 </template>
 
 <style scoped>
@@ -95,12 +178,20 @@ onMounted(() => {
 }
 
 .main-container {
-  /* max-width: 1100px; */
   margin: 40px auto;
   position: relative;
   padding: 0 5%;
   height: 100dvh;
   overflow-y: scroll;
+  padding-bottom: 100px;
+}
+
+
+
+.change-type {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .change-type button {
@@ -109,17 +200,8 @@ onMounted(() => {
   border: none;
   cursor: pointer;
   font-family: inherit;
-}
-
-.change-type button.active {
   background-color: #e03d31;
   color: white;
-}
-
-.change-type {
-  position: absolute;
-  top: 0;
-  right: 0;
 }
 
 .main-content {
@@ -138,36 +220,42 @@ onMounted(() => {
   width: 100%;
   margin-bottom: 3px;
 }
-.button:hover{
+
+.table-button .button:hover {
   background-color: #e03d31;
   color: white;
   cursor: pointer;
 }
+
 .input {
   padding: 8px 10px;
   border: 1px solid rgba(128, 128, 128, 0.226);
   cursor: pointer;
 }
-.input:focus{
+
+.input:focus {
   outline: none;
 }
+
 td {
   padding: 5px 10px;
   border-top: 1px solid rgba(128, 128, 128, 0.288);
   border-left: 1px solid rgba(128, 128, 128, 0.288);
   margin: 0;
 }
-tr{
-}
+
+
 tr:hover {
   background-color: #e03d315b;
   cursor: pointer;
 }
-.group-button{
+
+.group-button {
   margin-right: 5px;
   margin-bottom: 10px;
 }
-.group-button .button{
+
+.group-button .button {
   padding: 8px 10px;
   margin-right: 5px;
   border: 1px solid rgba(128, 128, 128, 0);
@@ -178,12 +266,34 @@ tr:hover {
   background-color: #e03d31;
   color: white;
 }
-.group-button .button:hover{
+
+.group-button .button:hover {
   border: 1px solid #e03d31;
   background-color: #ffffff;
   color: rgb(255, 0, 0);
   cursor: pointer;
 }
+
+.pagination {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.pagination span {
+  padding: 10px 15px;
+  background-color: #ccc;
+  color: #111;
+  margin: 0px 5px;
+  cursor: pointer;
+}
+
+.pagination span.active,
+.pagination span:hover {
+  background-color: #e03d31;
+
+  color: #fff;
+}
+
 /* Responsive Styles */
 @media (max-width: 1200px) {
   .main-container {

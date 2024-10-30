@@ -396,7 +396,9 @@ form {
 .cancel-btn:hover {
     background-color: #e63939;
 }
-
+.save-btn {
+    background-color: #28a745;
+}
 .suggest-item,
 .file-item {
     display: flex;

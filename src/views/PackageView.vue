@@ -15,7 +15,6 @@ const itemsPerPage = ref(8);
 
 
 const getFeatureNames = (features) => {
-  console.log(features);
   if (typeof features === 'string') {
     try {
       features = JSON.parse(features); 

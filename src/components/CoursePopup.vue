@@ -386,6 +386,9 @@ onMounted(() => {
     font-size: 1rem;
     transition: background-color 0.3s;
 }
+.save-btn {
+    background-color: #28a745;
+}
 
 .save-btn:hover,
 .cancel-btn:hover {

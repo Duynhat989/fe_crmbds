@@ -54,5 +54,13 @@ export const END_POINT = {
     PACKAGE_FIND: '/api/package/find', // Tìm bản gói
     PACKAGE_CREATE: '/api/package/create', // Tạo bản gói
     PACKAGE_UPDATE: '/api/package/update', // Cập nhật bản gói
-    PACKAGES_DELETE: 'api/package/delete' // lấy danh sách gói
+    PACKAGES_DELETE: 'api/package/delete', // lấy danh sách gói
+
+      // contracts APIs
+      CONTRACTS_LIST: '/api/contracts', // Danh sách bài giảng
+      CONTRACT_FIND: '/api/contract/find', // Tìm bài giảng
+      CONTRACT_CREATE: '/api/contract/create', // Tạo bài giảng
+      CONTRACT_UPDATE: '/api/contract/update', // Cập nhật bài giảng
+      CONTRACT_DELETE: '/api/contract/delete', // Xóa bài giảng
+  
 };
