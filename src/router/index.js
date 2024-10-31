@@ -72,7 +72,7 @@ router.beforeEach((to, from, next) => {
   const isLogin = store.getters.isLogin;
   if (to.meta.requiresAuth && !isLogin) {
     localStorage.setItem('intendedRoute', to.fullPath);
-    next('/login'); 
+    next(''); 
   } else {
     next();
   }

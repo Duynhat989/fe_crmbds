@@ -10,7 +10,6 @@ const contractData = ref({
     description: '',
     image: '',
     input: [],
-    template_contract: null
 });
 
 const props = defineProps({
@@ -29,9 +28,8 @@ watch(
         if (newContract) {
             contractData.value = {
                 ...newContract,
-                input: JSON.parse(newContract.input) ,
+                input: typeof newContract.input === 'string' ? JSON.parse(newContract.input || '[]') : newContract.input,
             };
-            console.log(contractData);
         } else {
             contractData.value = {
                 id: null,
@@ -39,7 +37,6 @@ watch(
                 description: '',
                 image: '',
                 input: [],
-                template_contract: null
             };
         }
     },
@@ -50,7 +47,8 @@ const addInput = () => {
         keyword: "",
         type: "input",
         title: "",
-        value: "", 
+        value: "",
+        required: false,
         placeholder: ""
     });
 };
@@ -65,9 +63,6 @@ const submitForm = async () => {
 
         if (props.isEdit) {
             formData.append('id', contractData.value.id);
-        }
-        if (contractData.value.template_contract instanceof File) {
-            formData.append('template_contract', contractData.value.template_contract);
         }
 
         const response = await request.post(
@@ -119,7 +114,7 @@ const submitForm = async () => {
                         class="preview-image" />
                 </div>
 
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label for="template_contract">Mẫu Hợp đồng:</label>
                     <input type="file" id="template_contract"
                         @change="e => contractData.template_contract = e.target.files[0]" />
@@ -127,7 +122,7 @@ const submitForm = async () => {
                         class="file-preview">
                         <a :href="contractData.template_contract" target="_blank">Tải Xem Mẫu Hợp Đồng</a>
                     </div>
-                </div>
+                </div> -->
                 <div class="dynamic-inputs">
                     <label>Thông tin thêm:</label>
                     <div v-for="(input, index) in contractData.input" :key="index" class="input-group">
@@ -135,20 +130,25 @@ const submitForm = async () => {
                             <option value="input">Nhập thông tin</option>
                             <option value="select">Lựa chọn</option>
                         </select>
-                        <input v-model="input.placeholder" placeholder="Mô tả placeholder" class="input-title" />
+                        <input v-model="input.keyword" placeholder="Định dạng @chatText@" class="input-title" />
                         <input v-model="input.title" placeholder="Tiêu đề" class="input-title" />
+                        <input v-model="input.placeholder" placeholder="Placeholder" class="input-title" />
+
                         <div v-if="input.type === 'select'" class="select-options">
                             <input v-model="input.value" placeholder="Nhập các giá trị cách nhau dấu phẩy"
                                 @change="input.value = input.value.split(',').map(option => option.trim())"
                                 class="options-input" />
                         </div>
                         <div v-if="input.type === 'input'" class="value-options">
-                            <input v-if="input.type === 'input'" v-model="input.value" placeholder="Nhập giá trị"
-                                class="input-value" />
+                            <input v-if="input.type === 'input'" v-model="input.value"
+                                placeholder="Người dùng nhập giá trị" class="input-value" disabled />
                         </div>
-
-                        <button type="button" @click="contractData.input.splice(index, 1)"
-                            class="remove-btn">Xóa</button>
+                        <div class="required-field">
+                            <label>Bắt buộc:</label>
+                            <input type="checkbox" v-model="input.required" />
+                            <button type="button" @click="contractData.input.splice(index, 1)"
+                                class="remove-btn">Xóa</button>
+                        </div>
                     </div>
 
                     <button type="button" @click="addInput" class="add-btn">Thêm +</button>
@@ -184,6 +184,12 @@ const submitForm = async () => {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     position: relative;
     animation: fadeIn 0.3s ease-in-out;
+    overflow: auto;
+    height: 90vh;
+}
+
+.popup-container::-webkit-scrollbar {
+    display: none;
 }
 
 .popup-container h2 {
@@ -230,12 +236,6 @@ const submitForm = async () => {
     border-radius: 4px;
 }
 
-.file-preview a {
-    color: #007BFF;
-    text-decoration: underline;
-    font-size: 14px;
-}
-
 .dynamic-inputs {
     margin-top: 15px;
 }
@@ -270,6 +270,14 @@ const submitForm = async () => {
     border-radius: 4px;
     font-size: 1em;
 }
+
+.required-field {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: -3px;
+}
+
 .value-options,
 .select-options {
     display: flex;
@@ -277,6 +285,7 @@ const submitForm = async () => {
     gap: 0px;
     flex: 1;
 }
+
 .options-input {
     padding: 8px;
     border: 1px solid #ddd;
@@ -325,7 +334,8 @@ const submitForm = async () => {
     cursor: pointer;
     margin-top: 10px;
 }
-.save-btn:hover ,
+
+.save-btn:hover,
 .add-btn:hover {
     opacity: 0.8;
 }
@@ -337,7 +347,8 @@ const submitForm = async () => {
 }
 
 .save-btn {
-    background-color: #12a837;;
+    background-color: #12a837;
+    ;
     color: white;
     border: none;
     padding: 10px 15px;

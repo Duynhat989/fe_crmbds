@@ -127,10 +127,8 @@ onMounted(() => {
             <th>Hình ảnh</th>
             <th>Tên hợp đồng</th>
             <th>Mô tả</th>
-            <th>Mẫu hợp đồng</th>
             <th>Tiêu đề đầu vào</th>
             <th>Trạng thái</th>
-            <th>Ngày tạo</th>
             <th style="width: 150px;">Hành động</th>
           </tr>
         </thead>
@@ -140,10 +138,8 @@ onMounted(() => {
             <td><img :src="item.image" alt="Contract Image" style="width: 50px; height: auto;" /></td>
             <td >{{ item.name }}</td>
             <td>{{ item.description }}</td>
-            <td>{{ getFileName(item.template_contract)}}</td>
             <td v-html="getInputNames(item.input)"></td>
             <td>{{ item.status === 1 ? 'Hoạt động' : 'Ngừng' }}</td>
-            <td>{{ new Date(item.createdAt).toLocaleDateString() }}</td>
             <td class="table-button">
               <button class="button" @click="openPopup(item, true)"><i class='bx bx-edit-alt'></i> Chỉnh sửa</button>
               <button class="button" @click="confirmDelete(item.id)"><i class='bx bx-trash'></i> Xóa vĩnh viễn</button>
