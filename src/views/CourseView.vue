@@ -10,6 +10,9 @@ const showPopup = ref(false)
 const selectedCourse = ref(null)
 const isEdit = ref(false)
 
+const currentPage = ref(1);
+const itemsPerPage = ref(5);
+const totalItems = ref(0);
 
 const addNewCourse = () => {
   showPopup.value = true;
@@ -29,31 +32,26 @@ const closePopup = () => {
   showPopup.value = false
   selectedCourse.value = null
 }
-
-
-const currentPage = ref(1);
-const itemsPerPage = ref(8);
-
-const paginatedItems = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return courses.value.slice(start, end);
-});
-
 const totalPages = computed(() => {
-  return Math.ceil(courses.value.length / itemsPerPage.value);
+  return Math.ceil(totalItems.value / itemsPerPage.value);
 });
-
 const changePage = (page) => {
-  if (page > 0 && page <= totalPages.value) {
+  if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
+    fetchCourses(currentPage.value, itemsPerPage.value);
   }
 };
-
-const fetchCourses = async () => {
+const fetchCourses = async (page = 1, limit = 5) => {
   try {
-    const response = await request.get(END_POINT.COURSES_LIST);
+    const response = await request.get(END_POINT.COURSES_LIST, {
+      params: {
+        page,
+        limit
+      }
+    });
     courses.value = response.courses;
+    // trả  về tổng khóa học
+    totalItems.value = response.totalItems;
   } catch (error) {
     console.error('Lỗi lấy danh sách trợ lý:', error);
   }
@@ -117,7 +115,7 @@ onMounted(() => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in paginatedItems" :key="index">
+          <tr v-for="(item, index) in courses" :key="index">
             <td style="text-align: center;" :data-id="item.id">{{ index }}</td>
             <td style="max-width: 200px;"><img :src="item.image" alt="Hình ảnh"></td>
             <td style="max-width: 150px;">{{ item.name }}</td>

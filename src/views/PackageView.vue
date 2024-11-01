@@ -11,7 +11,8 @@ const selectedPackage = ref(null)
 const isEdit = ref(false)
 
 const currentPage = ref(1);
-const itemsPerPage = ref(8);
+const itemsPerPage = ref(10);
+const total = ref(0);
 
 
 const getFeatureNames = (features) => {
@@ -76,29 +77,29 @@ const deletePackage = async (id) => {
     });
   }
 }
-
-const fetchPackages = async () => {
+const fetchPackages = async (page = 1, limit = 10) => {
   try {
-    const response = await request.get(END_POINT.PACKAGES_LIST);
+    const response = await request.get(END_POINT.PACKAGES_LIST, {
+      params: {
+        page,
+        limit
+      }
+    });
     packages.value = response.packages;
+    total.value = response?.total ?? 1;
   } catch (error) {
     console.error('Lỗi lấy danh sách gói:', error)
   }
 };
 
-const paginatedItems = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return packages.value.slice(start, end);
-});
-
 const totalPages = computed(() => {
-  return Math.ceil(packages.value.length / itemsPerPage.value);
+  return Math.ceil(total.value / itemsPerPage.value);
 });
 
 const changePage = (page) => {
-  if (page > 0 && page <= totalPages.value) {
+  if (page > 1 && page <= totalPages.value) {
     currentPage.value = page;
+    fetchPackages(currentPage.value, itemsPerPage.value);
   }
 };
 onMounted(() => {
@@ -131,7 +132,7 @@ onMounted(() => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in paginatedItems" :key="index">
+          <tr v-for="(item, index) in packages" :key="index">
             <td style="text-align: center;" :data-id="item.id">{{ index }}</td>
             <td style="max-width: 200px;">{{ item.name }}</td>
             <td>{{ item.description }}</td>

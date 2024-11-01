@@ -12,7 +12,7 @@ const isEdit = ref(false)
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
-
+const total = ref(0);
 
 const openPopup = (user = null, edit = false) => {
   selectedUser.value = user
@@ -67,11 +67,16 @@ const fetchLicenses = async (userId) => {
     return null;
   }
 };
-
-const fetchUsers = async () => {
+const fetchUsers = async (page = 1, limit = 10) => {
   try {
-    const response = await request.get(END_POINT.USER_LIST);
+    const response = await request.get(END_POINT.USER_LIST, {
+      params: {
+        page,
+        limit
+      }
+    });
     users.value = response.data;
+    total.value = response.total;
     for (const user of users.value) {
       user.license = await fetchLicenses(user.id);
     }
@@ -81,21 +86,16 @@ const fetchUsers = async () => {
   }
 };
 
-const paginatedItems = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return users.value.slice(start, end);
-});
-
 const totalPages = computed(() => {
-  return Math.ceil(users.value.length / itemsPerPage.value);
+  return Math.ceil(total.value / itemsPerPage.value);
 });
-
 const changePage = (page) => {
-  if (page > 0 && page <= totalPages.value) {
+  if (page > 1 && page <= totalPages.value) {
     currentPage.value = page;
+    fetchUsers(currentPage.value, itemsPerPage.value);
   }
 };
+
 onMounted(() => {
   fetchUsers();
 });
@@ -124,7 +124,7 @@ onMounted(() => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in paginatedItems" :key="index">
+          <tr v-for="(item, index) in users" :key="index">
             <td style="text-align: center;" :data-id="item.id">{{ index }}</td>
             <td style="max-width: 200px;">{{ item.name }}</td>
             <td>{{ item.phone }}</td>

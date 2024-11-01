@@ -7,7 +7,9 @@ import AddAssistantPopup from '@/components/AddAssistantPopup.vue';
 import { notify } from '@kyvg/vue3-notification';
 const assistants = ref([]);
 const currentPage = ref(1);
-const itemsPerPage = ref(8);
+const itemsPerPage = ref(10);
+const total = ref(0);
+
 const showPopup = ref(false);
 const editAssistantId = ref(null);
 
@@ -46,7 +48,6 @@ const deleteAssistant = async (itemId) => {
         });
       }
     } catch (error) {
-      console.log(error);
       notify({
         title: 'Lỗi',
         text: 'Xóa trợ lý thất bại. Vui lòng thử lại. ',
@@ -58,10 +59,16 @@ const deleteAssistant = async (itemId) => {
 const closePopup = () => {
   showPopup.value = false;
 };
-const fetchAssistants = async () => {
+const fetchAssistants = async (page = 1, limit = 10) => {
   try {
-    const response = await request.get(END_POINT.ASSISTANTS_LIST);
+    const response = await request.get(END_POINT.ASSISTANTS_LIST, {
+      params: {
+        page,
+        limit
+      }
+    });
     assistants.value = response.data;
+    total.value = response.total;
   } catch (error) {
     console.error('Lỗi lấy danh sách trợ lý:', error);
   }
@@ -79,19 +86,16 @@ const addOrUpdateAssistant = (newAssistant) => {
   }
 };
 
-const paginatedItems = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return assistants.value.slice(start, end);
-});
+
 
 const totalPages = computed(() => {
-  return Math.ceil(assistants.value.length / itemsPerPage.value);
+  return Math.ceil(total.value / itemsPerPage.value);
 });
 
 const changePage = (page) => {
-  if (page > 0 && page <= totalPages.value) {
+  if (page > 1 && page <= totalPages.value) {
     currentPage.value = page;
+    fetchAssistants(currentPage.value, itemsPerPage.value);
   }
 };
 onMounted(() => {
@@ -124,7 +128,7 @@ onMounted(() => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in paginatedItems" :key="index">
+          <tr v-for="(item, index) in assistants" :key="index">
             <td style="text-align: center;" :data-id="item.id">{{ index }}</td>
             <td style="max-width: 200px;">{{ item.name }}</td>
             <td><input readonly class="input" style="width: 100%;" type="text" v-model="item.detail"></td>

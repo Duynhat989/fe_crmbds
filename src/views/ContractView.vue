@@ -12,6 +12,7 @@ const isEdit = ref(false)
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
+const total = ref(0);
 
 
 const openPopup = (contract = null, edit = false) => {
@@ -22,7 +23,7 @@ const openPopup = (contract = null, edit = false) => {
 const addNewContract = () => {
   showPopup.value = true;
   selectedContract.value = null,
-  isEdit.value = false
+    isEdit.value = false
 };
 
 
@@ -61,38 +62,34 @@ const deletecontract = async (contractId) => {
   }
 }
 
-
-const fetchContracts = async () => {
+const fetchContracts = async (page = 1, limit = 10) => {
   try {
-    const response = await request.get(END_POINT.CONTRACTS_LIST);
+    const response = await request.get(END_POINT.CONTRACTS_LIST, {
+      params: {
+        page,
+        limit
+      }
+    });
     contracts.value = response.contracts;
+    total.value = response.total;
   } catch (error) {
     console.error('Lỗi lấy danh sách hợp đồng:', error)
   }
 };
-
-const paginatedItems = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return contracts.value.slice(start, end);
-});
-
 const totalPages = computed(() => {
-  return Math.ceil(contracts.value.length / itemsPerPage.value);
+  return Math.ceil(total.value / itemsPerPage.value);
 });
 
 const changePage = (page) => {
-  if (page > 0 && page <= totalPages.value) {
+  if (page > 1 && page <= totalPages.value) {
     currentPage.value = page;
+    fetchContracts(currentPage.value, itemsPerPage.value);
   }
 };
-function getFileName(filePath) {
-  return filePath.split('\\').pop();
-}
 const getInputNames = (input) => {
   if (typeof input === 'string') {
     try {
-      input = JSON.parse(input); 
+      input = JSON.parse(input);
     } catch (error) {
       return '';
     }
@@ -100,7 +97,7 @@ const getInputNames = (input) => {
 
   if (!Array.isArray(input)) return '';
 
-  return input.map(item => item.title).join( `<br>`);
+  return input.map(item => item.title).join(`<br>`);
 };
 
 onMounted(() => {
@@ -118,7 +115,7 @@ onMounted(() => {
     </div>
     <div class="main-content">
       <div class="group-button">
-        <button class="button" @click="addNewContract"><i class='bx bx-message-square-add'></i> Thêm trợ lý</button>
+        <button class="button" @click="addNewContract"><i class='bx bx-message-square-add'></i> Thêm hợp đồng</button>
       </div>
       <table class="table" style="border: 1px solid rgba(128, 128, 128, 0.288);;padding: 10px;">
         <thead>
@@ -127,17 +124,21 @@ onMounted(() => {
             <th>Hình ảnh</th>
             <th>Tên hợp đồng</th>
             <th>Mô tả</th>
+            <th>Mẫu hợp đồng</th>
             <th>Tiêu đề đầu vào</th>
             <th>Trạng thái</th>
             <th style="width: 150px;">Hành động</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in paginatedItems" :key="item.id">
+          <tr v-for="(item, index) in contracts" :key="item.id">
             <td style="text-align: center;">{{ index + 1 }}</td>
             <td><img :src="item.image" alt="Contract Image" style="width: 50px; height: auto;" /></td>
-            <td >{{ item.name }}</td>
+            <td>{{ item.name }}</td>
             <td>{{ item.description }}</td>
+            <td>
+              <a  v-if="item.template_contract" :href="item.template_contract">Tải hợp đồng</a>
+            </td>
             <td v-html="getInputNames(item.input)"></td>
             <td>{{ item.status === 1 ? 'Hoạt động' : 'Ngừng' }}</td>
             <td class="table-button">
@@ -240,6 +241,9 @@ td {
   margin: 0;
 }
 
+td a {
+  color: blue;
+}
 
 tr:hover {
   background-color: #e03d315b;

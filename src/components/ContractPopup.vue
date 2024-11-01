@@ -10,6 +10,7 @@ const contractData = ref({
     description: '',
     image: '',
     input: [],
+    template_contract: null
 });
 
 const props = defineProps({
@@ -37,6 +38,7 @@ watch(
                 description: '',
                 image: '',
                 input: [],
+                template_contract: null
             };
         }
     },
@@ -64,7 +66,9 @@ const submitForm = async () => {
         if (props.isEdit) {
             formData.append('id', contractData.value.id);
         }
-
+        if (contractData.value.template_contract instanceof File) {
+            formData.append('template_contract', contractData.value.template_contract);
+        }
         const response = await request.post(
             props.isEdit ? END_POINT.CONTRACT_UPDATE : END_POINT.CONTRACT_CREATE,
             formData,
@@ -114,7 +118,7 @@ const submitForm = async () => {
                         class="preview-image" />
                 </div>
 
-                <!-- <div class="form-group">
+                <div class="form-group">
                     <label for="template_contract">Mẫu Hợp đồng:</label>
                     <input type="file" id="template_contract"
                         @change="e => contractData.template_contract = e.target.files[0]" />
@@ -122,7 +126,7 @@ const submitForm = async () => {
                         class="file-preview">
                         <a :href="contractData.template_contract" target="_blank">Tải Xem Mẫu Hợp Đồng</a>
                     </div>
-                </div> -->
+                </div>
                 <div class="dynamic-inputs">
                     <label>Thông tin thêm:</label>
                     <div v-for="(input, index) in contractData.input" :key="index" class="input-group">
