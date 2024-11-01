@@ -59,7 +59,7 @@ const deleteAssistant = async (itemId) => {
 const closePopup = () => {
   showPopup.value = false;
 };
-const fetchAssistants = async (page = 1, limit = 10) => {
+const fetchAssistants = async (page = currentPage.value, limit = itemsPerPage.value) => {
   try {
     const response = await request.get(END_POINT.ASSISTANTS_LIST, {
       params: {
@@ -69,6 +69,8 @@ const fetchAssistants = async (page = 1, limit = 10) => {
     });
     assistants.value = response.data;
     total.value = response.total;
+    currentPage.value = response.page;
+    itemsPerPage.value = response.limit;
   } catch (error) {
     console.error('Lỗi lấy danh sách trợ lý:', error);
   }
@@ -86,14 +88,12 @@ const addOrUpdateAssistant = (newAssistant) => {
   }
 };
 
-
-
 const totalPages = computed(() => {
   return Math.ceil(total.value / itemsPerPage.value);
 });
 
 const changePage = (page) => {
-  if (page > 1 && page <= totalPages.value) {
+  if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
     fetchAssistants(currentPage.value, itemsPerPage.value);
   }

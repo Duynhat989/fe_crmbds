@@ -11,8 +11,8 @@ const selectedCourse = ref(null)
 const isEdit = ref(false)
 
 const currentPage = ref(1);
-const itemsPerPage = ref(5);
-const totalItems = ref(0);
+const itemsPerPage = ref(10);
+const total = ref(0);
 
 const addNewCourse = () => {
   showPopup.value = true;
@@ -33,7 +33,7 @@ const closePopup = () => {
   selectedCourse.value = null
 }
 const totalPages = computed(() => {
-  return Math.ceil(totalItems.value / itemsPerPage.value);
+  return Math.ceil(total.value / itemsPerPage.value);
 });
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
@@ -41,7 +41,7 @@ const changePage = (page) => {
     fetchCourses(currentPage.value, itemsPerPage.value);
   }
 };
-const fetchCourses = async (page = 1, limit = 5) => {
+const fetchCourses = async (page = currentPage.value, limit = itemsPerPage.value) => {
   try {
     const response = await request.get(END_POINT.COURSES_LIST, {
       params: {
@@ -50,8 +50,9 @@ const fetchCourses = async (page = 1, limit = 5) => {
       }
     });
     courses.value = response.courses;
-    // trả  về tổng khóa học
-    totalItems.value = response.totalItems;
+    total.value = response.total;
+    currentPage.value = response.page;
+    itemsPerPage.value = response.limit;
   } catch (error) {
     console.error('Lỗi lấy danh sách trợ lý:', error);
   }

@@ -77,6 +77,8 @@ const fetchUsers = async (page = 1, limit = 10) => {
     });
     users.value = response.data;
     total.value = response.total;
+    currentPage.value = response.page;
+    itemsPerPage.value = response.limit;
     for (const user of users.value) {
       user.license = await fetchLicenses(user.id);
     }
@@ -90,7 +92,7 @@ const totalPages = computed(() => {
   return Math.ceil(total.value / itemsPerPage.value);
 });
 const changePage = (page) => {
-  if (page > 1 && page <= totalPages.value) {
+  if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
     fetchUsers(currentPage.value, itemsPerPage.value);
   }
