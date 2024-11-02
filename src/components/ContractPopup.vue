@@ -248,7 +248,6 @@ const submitForm = async () => {
     font-weight: bold;
     color: #333;
     display: block;
-    margin-bottom: 8px;
 }
 
 .input-group {

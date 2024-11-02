@@ -78,7 +78,13 @@ const addLesson = () => {
     })
 }
 
-const removeLesson = (id, name) => {
+const removeLesson = (id, name, index) => {
+    if (!id || !name) {
+        if (index >= 0 && index < courseData.value.lessons.length) {
+            courseData.value.lessons.splice(index, 1);
+        } 
+        return;
+    }
     if (confirm(`Bạn có chắc chắn muốn xóa bài học ${name} này vĩnh viễn?`)) {
         deleteLesson(id)
     }
@@ -232,7 +238,7 @@ onMounted(() => {
                             </div>
 
                             <button type="button" class="remove-lesson-btn"
-                                @click="removeLesson(lesson.id, lesson.name)">Xóa bài
+                                @click="removeLesson(lesson.id, lesson.name ,index)">Xóa bài
                                 học</button>
                         </div>
                     </div>
