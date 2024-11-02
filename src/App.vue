@@ -89,10 +89,10 @@ const handleLogOut = async (event) => {
         </div>
       </div>
       <div class="menu_icon" v-if="hiddenPopup" @click="hiddenPopup = !hiddenPopup">
-        <i style="font-size: 2em; color: #e03d31;" class='bx bx-menu-alt-left'></i>
+        <i style="font-size: 2em; color: var(--color-primary);" class='bx bx-menu-alt-left'></i>
       </div>
       <div class="menu_icon center" v-else @click="hiddenPopup = !hiddenPopup">
-        <i style="font-size: 2em; color: #e03d31;" class='bx bx-caret-left-circle'></i>
+        <i style="font-size: 2em; color: var(--color-primary);" class='bx bx-caret-left-circle'></i>
       </div>
     </div>
     <div class="body-content" :class="!isLogin ? 'body-full' : ''">
@@ -104,7 +104,7 @@ const handleLogOut = async (event) => {
 
 <style scoped>
 h2{
-  color: #e03d31;
+  color: var(--color-primary);
   font-weight: 800;margin-left: 15px;
 }
 .body {
@@ -192,12 +192,12 @@ li {
   transition: all 0.5s;
   border-radius: 10px;
   color: #fff;
-  background-color: #e03d31;
+  background-color: var(--color-primary);
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 .menu .active,
 .menu_item:hover {
-  background-color: #f4d1ce;
+  background-color: #a5d4e0;
   cursor: pointer;
 
 }
@@ -230,7 +230,7 @@ li .button span {
   right: 0;
   left: 0;
   cursor: pointer;
-  color: #e03d31;
+  color: var(--color-primary);
   transition: all 1s;
   box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
 }
@@ -266,7 +266,7 @@ li .button span {
 }
 
 .logout:hover {
-  background-color: #e03d31;
+  background-color: var(--color-primary);
   color: #ececec;
 }
 

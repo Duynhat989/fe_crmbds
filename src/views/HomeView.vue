@@ -36,8 +36,7 @@ const handleClick = (routeName) => {
 
 const openLink = () => {
   window.open(mainWeb,'_blank')
-}
-
+};
 </script>
 <template>
   <div class="main-container">
@@ -98,7 +97,7 @@ const openLink = () => {
 .header-title .title {
   font-size: 50px;
   font-weight: bold;
-  color: #e03d31;
+  color: var(--color-primary);
   line-height: 56px;
 }
 
@@ -157,8 +156,8 @@ const openLink = () => {
 }
 
 .tab-button.active {
-  background: rgb(229, 57, 53);
-  background: linear-gradient(90deg, rgba(229, 57, 53, 1) 0%, rgba(229, 57, 53, 1) 35%, rgba(44, 44, 44, 1) 100%);
+  background: var(--color-primary);
+  background: linear-gradient(90deg, var(--color-primary)0%, var(--color-primary)35%, rgba(44, 44, 44, 1) 100%);
   color: white;
 }
 
@@ -170,7 +169,7 @@ const openLink = () => {
 }
 
 .highlight {
-  border: 2px solid #ff5722;
+  border: 2px solid var(--color-primary);
   background-color: #fff3e0;
   box-shadow: 0 0 10px rgba(255, 87, 34, 0.5);
   transition: all 0.3s ease;

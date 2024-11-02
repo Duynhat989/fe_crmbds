@@ -134,7 +134,7 @@ const submitForm = async () => {
                             <option value="input">Nhập thông tin</option>
                             <option value="select">Lựa chọn</option>
                         </select>
-                        <input v-model="input.keyword" placeholder="Định dạng @chatText@" class="input-title" />
+                        <input v-model="input.keyword" placeholder="Định dạng keyword" class="input-title" />
                         <input v-model="input.title" placeholder="Tiêu đề" class="input-title" />
                         <input v-model="input.placeholder" placeholder="Placeholder" class="input-title" />
 
@@ -229,7 +229,7 @@ const submitForm = async () => {
 .form-group input[type="text"]:focus,
 .form-group textarea:focus,
 .form-group select:focus {
-    border-color: #007BFF;
+    border-color: var(--color-primary);
 }
 
 .preview-image {
@@ -316,7 +316,7 @@ const submitForm = async () => {
 
 .remove-btn {
     padding: 6px 12px;
-    background-color: #dc3545;
+    background-color: var(--color-primary);
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -330,7 +330,7 @@ const submitForm = async () => {
 
 .add-btn {
     padding: 8px 16px;
-    background-color: #a82b12;
+    background-color: var(--color-primary);
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -363,7 +363,7 @@ const submitForm = async () => {
 }
 
 .cancel-btn {
-    background-color: #dc3545;
+    background-color: var(--color-primary);
     color: white;
     border: none;
     padding: 10px 15px;

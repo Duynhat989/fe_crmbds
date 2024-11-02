@@ -166,7 +166,7 @@ onMounted(() => {
 .header-title .title {
   font-size: 30px;
   font-weight: bold;
-  color: #e03d31;
+  color: var(--color-primary);
   line-height: 40px;
 }
 
@@ -194,7 +194,7 @@ onMounted(() => {
   border: none;
   cursor: pointer;
   font-family: inherit;
-  background-color: #e03d31;
+  background-color: var(--color-primary);
   color: white;
 }
 
@@ -216,7 +216,7 @@ onMounted(() => {
 }
 
 .table-button .button:hover {
-  background-color: #e03d31;
+  background-color: var(--color-primary);
   color: white;
   cursor: pointer;
 }
@@ -241,10 +241,9 @@ td {
 tr {}
 
 tr:hover {
-  background-color: #e03d315b;
+  background-color: #aed4d15b;
   cursor: pointer;
 }
-
 .group-button {
   margin-right: 5px;
   margin-bottom: 10px;
@@ -258,12 +257,12 @@ tr:hover {
   margin-right: 5px;
   min-width: 200px;
   padding: 10px;
-  background-color: #e03d31;
+  background-color: var(--color-primary);
   color: white;
 }
 
 .group-button .button:hover {
-  border: 1px solid #e03d31;
+  border: 1px solid var(--color-primary);
   background-color: #ffffff;
   color: rgb(255, 0, 0);
   cursor: pointer;
@@ -284,7 +283,7 @@ tr:hover {
 
 .pagination span.active,
 .pagination span:hover {
-  background-color: #e03d31;
+  background-color: var(--color-primary);
 
   color: #fff;
 }

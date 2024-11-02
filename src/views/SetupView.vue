@@ -43,7 +43,7 @@ onMounted(() => {
 
 .change-type button {
   padding: 10px 20px;
-  background-color: #E03C31;
+  background-color: var(--color-primary);
   ;
   color: white;
   border: none;
@@ -52,13 +52,13 @@ onMounted(() => {
 }
 
 .change-type button.active {
-  background-color: #E03C31;
+  background-color: var(--color-primary);
   ;
 }
 
 .header-title .title {
   font-size: 24px;
-  color: #E03C31;
+  color: var(--color-primary);
   ;
   margin: 20px 0;
 }
@@ -95,7 +95,7 @@ onMounted(() => {
 .input-text .input {
   width: 100%;
   padding: 8px;
-  border: 1px solid #E03C31;
+  border: 1px solid var(--color-primary);
   ;
   border-radius: 4px;
   font-size: 14px;

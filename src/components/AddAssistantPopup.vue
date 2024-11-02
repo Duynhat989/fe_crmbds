@@ -304,7 +304,7 @@ onMounted(() => {
 
 .popup-container h2 {
     font-size: 26px;
-    color: #e63939;
+    color: var(--color-primary);
     font-weight: bold;
     margin-bottom: 5px;
     width: 100%;
@@ -319,7 +319,7 @@ onMounted(() => {
     border: none;
     cursor: pointer;
     font-size: 24px;
-    color: #ae3636;
+    color: var(--color-primary);
     transition: color 0.2s ease;
 }
 
@@ -342,7 +342,7 @@ onMounted(() => {
 .form-group textarea {
     width: 100%;
     padding: 0.5rem;
-    border: 1px solid #ff3f3f;
+    border: 1px solid var(--color-primary);
     border-radius: 4px;
     font-size: 1rem;
     background-color: #fff0f0;
@@ -375,7 +375,7 @@ form {
 .remove-btn,
 .save-btn,
 .cancel-btn {
-    background-color: #ff3f3f;
+    background-color: var(--color-primary);
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -394,7 +394,7 @@ form {
 .remove-btn:hover,
 .save-btn:hover,
 .cancel-btn:hover {
-    background-color: #e63939;
+    background-color: var(--color-primary);
 }
 .save-btn {
     background-color: #28a745;
@@ -413,17 +413,17 @@ form {
 }
 
 .form-group input[type="file"] {
-    border: 1px solid #ff3f3f;
+    border: 1px solid var(--color-primary);
     background-color: #fff0f0;
     padding: 8px;
     border-radius: 4px;
-    color: #ff3f3f;
+    color: var(--color-primary);
     cursor: pointer;
     width: 100%;
 }
 
 .form-group input[type="file"]::file-selector-button {
-    background-color: #ff3f3f;
+    background-color: var(--color-primary);
     color: white;
     border: none;
     padding: 4px 8px;
@@ -432,7 +432,7 @@ form {
 }
 
 .form-group input[type="file"]::file-selector-button:hover {
-    background-color: #e63939;
+    background-color: var(--color-primary);
 }
 
 .preview-image {

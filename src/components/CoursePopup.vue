@@ -281,7 +281,7 @@ onMounted(() => {
     border: none;
     cursor: pointer;
     font-size: 24px;
-    color: #ae3636;
+    color: var(--color-primary);
     transition: color 0.2s ease;
 }
 
@@ -291,7 +291,7 @@ onMounted(() => {
 
 .popup-container h2 {
     font-size: 26px;
-    color: #e63939;
+    color: var(--color-primary);
     font-weight: bold;
     margin-bottom: 5px;
     text-align: center;
@@ -345,7 +345,7 @@ onMounted(() => {
 
 .add-lesson-btn,
 .remove-lesson-btn {
-    background-color: #dc3545;
+    background-color: var(--color-primary);
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -358,11 +358,11 @@ onMounted(() => {
 }
 
 .remove-lesson-btn {
-    background-color: #dc3545;
+    background-color: var(--color-primary);
 }
 
 .add-lesson-btn:hover {
-    background-color: #e63939;
+    background-color: var(--color-primary);
 }
 
 .remove-lesson-btn:hover {
@@ -377,7 +377,7 @@ onMounted(() => {
 
 .save-btn,
 .cancel-btn {
-    background-color: #ff3f3f;
+    background-color: var(--color-primary);
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -392,11 +392,11 @@ onMounted(() => {
 
 .save-btn:hover,
 .cancel-btn:hover {
-    background-color: #e63939;
+    background-color: var(--color-primary);
 }
 
 .toggle-lesson-btn {
-    background-color: #e63939;
+    background-color: var(--color-primary);
     color: white;
     border: none;
     padding: 3px 5px;
@@ -411,7 +411,7 @@ onMounted(() => {
 }
 
 .remove-lesson-btn {
-    background-color: #dc3545;
+    background-color: var(--color-primary);
     color: white;
     border: none;
     padding: 0.5rem 1rem;
