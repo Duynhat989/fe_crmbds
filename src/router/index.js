@@ -8,6 +8,7 @@ import ContractView from '@/views/ContractView.vue';
 import CourseView from '@/views/CourseView.vue';
 import SetupView from '@/views/SetupView.vue';
 import PackageView from '@/views/PackageView.vue';
+import PaymentManagement from '@/views/PaymentManagement.vue';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -57,6 +58,12 @@ const router = createRouter({
       path: '/course',
       name: 'course',
       component: CourseView ,
+      meta: { requiresAuth: true } 
+    },
+    {
+      path: '/payment',
+      name: 'payment',
+      component: PaymentManagement ,
       meta: { requiresAuth: true } 
     },
     {

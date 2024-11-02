@@ -70,6 +70,9 @@ const handleLogOut = async (event) => {
           <li :class="{ active: currentRoute === '/license' }" class="menu_item">
             <a href="/license" class="button"><i class='bx bx-check-shield'></i> <span>Điều chỉnh gói cước</span></a>
           </li>
+          <li :class="{ active: currentRoute === '/payment' }" class="menu_item">
+            <a href="/payment" class="button"><i class='bx bxl-paypal' ></i><span>Quản lý thanh toán</span></a>
+          </li>
           <li :class="{ active: currentRoute === '/setting' }" class="menu_item">
             <a href="/setting" class="button"><i class='bx bx-cog'></i> <span>Cài đặt chung</span></a>
           </li>
