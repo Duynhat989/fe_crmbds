@@ -49,6 +49,7 @@ export const END_POINT = {
   FILE_DELETE: (fileId) => `/api/file/${fileId}`,
   // Setup APIs
   SETUP: '/api/setup', // Tải cài đặt
+  SETUPSAVE: '/api/setup/save', // Tải cài đặt
 
   PACKAGES_LIST: 'api/packages',// lấy danh sách gói
   PACKAGE_FIND: '/api/package/find', // Tìm bản gói

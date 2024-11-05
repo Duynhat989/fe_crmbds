@@ -3,6 +3,12 @@ import { ref, onMounted } from 'vue';
 import { END_POINT } from '@/api/api';
 import request from '@/utils/request';
 const apiData = ref([]);
+const assistants = ref([]);
+const modifiedFields = ref({});
+const currentPage = ref(1);
+const itemsPerPage = ref(100);
+import { notify } from '@kyvg/vue3-notification';
+
 const fetchSetups = async () => {
   try {
     const response = await request.get(END_POINT.SETUP_LIST);
@@ -11,93 +17,133 @@ const fetchSetups = async () => {
     console.error('Lỗi lấy danh sách cài đặt:', error);
   }
 };
+const fetchAssistants = async (page = currentPage.value, limit = itemsPerPage.value) => {
+  try {
+    const response = await request.get(END_POINT.ASSISTANTS_LIST, {
+      params: {
+        page,
+        limit
+      }
+    });
+    assistants.value = response.data;
+  } catch (error) {
+    console.error('Lỗi lấy danh sách trợ lý:', error);
+  }
+};
+const handleChange = (name, value) => {
+  modifiedFields.value[name] = value;
+};
+
+const updateData = async () => {
+  const dataToUpdate = { ...modifiedFields.value };
+
+  if (Object.keys(dataToUpdate).length === 0) {
+    return;
+  }
+  try {
+    const response = await request.post(END_POINT.SETUPSAVE, dataToUpdate);
+    if (response.success) {
+      modifiedFields.value = {};
+      notify({
+          title: 'Thành công',
+          text: 'Cập nhật thành công!',
+          type: 'success'
+      });
+    }
+  } catch (error) {
+    notify({
+      title: 'Lỗi',
+      text: 'Cập nhật thất bại. Vui lòng thử lại. ',
+      type: 'error'
+    });
+  }
+};
+
 onMounted(() => {
+  fetchAssistants();
   fetchSetups();
 });
 </script>
 <template>
-  <div class="main-container">
-    <div class="header-title">
-      <h1 class="title">Cài đặt hệ thống</h1>
-    </div>
-    <div class="main-content">
-      <div class="setting">
-        <div class="setting_content">
-          <div v-for="api in apiData" :key="api.id" class="row-set flex">
-            <div class="input-text">
-              <label :for="'api_' + api.id">{{ api.name }}</label>
-              <input disabled type="text" :id="'api_' + api.id" class="input" v-model="api.value">
-            </div>
+  <div class="main-content">
+    <div class="setting">
+      <div class="setting_content">
+        <div v-for="api in apiData" :key="api.id" class="row-set flex">
+          <div class="input-text">
+            <label :for="'api_' + api.id">{{ api.name }}</label>
+            <input v-if="api.name === 'API_KEY'" type="text" :id="'api_' + api.id" class="input" v-model="api.value"
+              @input="handleChange(api.name, api.value)" />
+
+            <select v-else-if="api.name === 'API_STATUS'" :id="'api_' + api.id" class="input" v-model="api.value"
+              @change="handleChange(api.name, api.value)">
+              <option value="1">1</option>
+              <option value="0">0</option>
+            </select>
+
+            <select v-else-if="['API_TEAMTRAINING', 'API_SUMMARY', 'API_FINANCEAL', 'API_ESTATE'].includes(api.name)"
+              :id="'api_' + api.id" class="input" v-model="api.value" @change="handleChange(api.name, api.value)">
+              <option v-for="assistant in assistants" :key="assistant.id" :value="assistant.id">
+                {{ assistant.name }}
+              </option>
+            </select>
+            <input v-else type="text" :id="'api_' + api.id" class="input" v-model="api.value" @input="handleChange(api.name, api.value)" />
           </div>
         </div>
+        <button @click="updateData" class="update-button">Cập nhật</button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.main-container {
-  padding: 0 5%;
-  margin: 40px auto;
-}
-
-.change-type button {
-  padding: 10px 20px;
-  background-color: var(--color-primary);
-  ;
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.change-type button.active {
-  background-color: var(--color-primary);
-  ;
-}
-
-.header-title .title {
-  font-size: 24px;
-  color: var(--color-primary);
-  ;
-  margin: 20px 0;
-}
-
 .main-content {
-  border: 1px solid #ddd;
   padding: 20px;
   background-color: #f9f9f9;
-  border-radius: 8px;
 }
 
-.setting {
-  margin-bottom: 20px;
+.setting_content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .row-set {
-  display: flex;
-  align-items: center;
   margin-bottom: 15px;
 }
 
 .input-text {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .input-text label {
-  display: block;
-  font-weight: bold;
-  color: #343434;
-  ;
   margin-bottom: 5px;
+  font-weight: bold;
 }
 
-.input-text .input {
+.input {
   width: 100%;
   padding: 8px;
-  border: 1px solid var(--color-primary);
-  ;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.update-button {
+  margin-top: 20px;
+  padding: 10px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.update-button:hover {
+  background-color: #45a049;
 }
 </style>
