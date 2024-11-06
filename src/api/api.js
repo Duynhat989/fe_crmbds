@@ -67,4 +67,11 @@ export const END_POINT = {
 
   PAYMENTS_LIST: '/api/pays', // Update Promts
   PAYMENT_DELETE: '/api/pay/delete', // Update Promts
+
+  // estales APIs
+  ESTALES_LIST: '/api/estales', // Danh sách bài viết bất động sản
+  ESTALE_FIND: '/api/estale/find', // Tìm bài viết bất động sản
+  ESTALE_UPDATE: '/api/estale/update', // Cập nhật bài viết bất động sản
+  ESTALE_CREATE: '/api/estale/create', // Cập nhật bài viết bất động sản
+  ESTALE_DELETE: '/api/estale/delete', // Xóa bài viết bất động sản
 };

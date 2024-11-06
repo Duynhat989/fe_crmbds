@@ -61,8 +61,8 @@ const handleLogOut = async (event) => {
           <li :class="{ active: currentRoute === '/contract' }" class="menu_item">
             <a href="/contract" class="button"><i class='bx bx-book-content'></i> <span>Quản lý hợp đồng</span></a>
           </li>
-          <li :class="{ active: currentRoute === '/search' }" class="menu_item">
-            <a href="/search" class="button"><i class='bx bx-search'></i> <span>Quản lý tìm kiếm</span></a>
+          <li :class="{ active: currentRoute === '/estate' }" class="menu_item">
+            <a href="/estate" class="button"><i class='bx bx-search'></i> <span>Quản lý bài viết</span></a>
           </li>
           <li :class="{ active: currentRoute === '/course' }" class="menu_item">
             <a href="/course" class="button"><i class='bx bx-movie-play'></i> <span>Quản lý khóa học</span></a>
