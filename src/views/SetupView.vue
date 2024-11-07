@@ -76,11 +76,11 @@ onMounted(() => {
 
             <select v-else-if="api.name === 'API_STATUS'" :id="'api_' + api.id" class="input" v-model="api.value"
               @change="handleChange(api.name, api.value)">
-              <option value="1">1</option>
-              <option value="0">0</option>
+              <option value="1">On</option>
+              <option value="0">Off</option>
             </select>
 
-            <select v-else-if="['API_TEAMTRAINING', 'API_SUMMARY', 'API_FINANCEAL', 'API_ESTATE'].includes(api.name)"
+            <select v-else-if="['API_TEAMTRAINING', 'API_SUMMARY', 'API_FINANCEAL', 'API_ESTATE', 'API_CONTRACT','API_REP_CONTRACT'].includes(api.name)"
               :id="'api_' + api.id" class="input" v-model="api.value" @change="handleChange(api.name, api.value)">
               <option v-for="assistant in assistants" :key="assistant.id" :value="assistant.id">
                 {{ assistant.name }}
