@@ -5,6 +5,7 @@ import store from '@/store';
 import { useRouter, RouterView, useRoute } from 'vue-router'
 import { Notifications } from "@kyvg/vue3-notification";
 import icon_logo from '../public/icon_logo.png'
+import logo from './assets/logo.png'
 
 
 const isLogin = computed(() => store.getters.isLogin);
@@ -51,7 +52,7 @@ const handleLogOut = async (event) => {
             <div class="img flex" style="align-items: center;">
               <img :src="icon_logo" alt="" width="50">
             </div> &nbsp; &nbsp;
-            <h2>An Phát Hưng . AI</h2>
+            <img :src="logo" alt="logo web" class="logo_text">
           </div>
         </div>
         <ul class="menu">
@@ -178,7 +179,9 @@ h2{
 .logo_web {
   align-items: center;
 }
-
+.logo_web .logo_text {
+  width: 175px;
+}
 .menu {
   height: calc(100% - 180px);
   padding: 0;
