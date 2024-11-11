@@ -4,7 +4,7 @@ import store from '@/store';
 
 import { useRouter, RouterView, useRoute } from 'vue-router'
 import { Notifications } from "@kyvg/vue3-notification";
-import icon_logo from '../public/icon_logo.png'
+import icon_logo from './assets/icon_logo.png'
 import logo from './assets/logo.png'
 
 
