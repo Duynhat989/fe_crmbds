@@ -7,6 +7,8 @@ import footerView from '@/components/footerView.vue';
 import ForgotPasswordForm from '@/components/ForgotPasswordForm.vue';
 import store from '@/store';
 
+import icon_logo1 from '../assets/icon_logo1.png'
+
 const isHighlighted = ref(false);
 const activeTab = ref('login');
 const mainWeb = import.meta.env.VITE_API_APP
@@ -45,16 +47,10 @@ const openLink = () => {
       <span>Quản lý tài nguyên, cập nhật giải pháp mới cho thành viên</span>
     </div>
     <div class="content">
-      <!-- <div class="left-box">
-        <ItemBox @click="handleClick('assistant')" text="Hỏi đáp trợ lý" imageUrl="/q_a.png" />
-        <ItemBox @click="handleClick('contract')" text="Rà soát & tạo mới hợp đồng" imageUrl="/contract.png" />
-        <ItemBox @click="handleClick('search')" text="Tìm kiếm bất động sản" imageUrl="/search_home.png" />
-        <ItemBox @click="handleClick('course')" text="Khóa học bất động sản" imageUrl="/course.png" />
-      </div> -->
 
       <div class="right-box" :class="{ highlight: isHighlighted }" style="margin: auto;">
         <div class="right-icon">
-          <img src="/icon_logo1.png" alt="icon logo">
+          <img :src="icon_logo1" alt="icon logo">
         </div>
         <div class="tabs">
           <button class="tab-button" :class="{ active: activeTab === 'login' }" @click="activeTab = 'login'">Đăng nhập
