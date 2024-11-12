@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineEmits, onMounted, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
 const emit = defineEmits(['close', 'submit']);
 import { notify } from '@kyvg/vue3-notification';
