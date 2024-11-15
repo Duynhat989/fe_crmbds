@@ -2,14 +2,16 @@
 import { ref, onMounted, watch } from 'vue'
 import request from '@/utils/request'
 import { END_POINT } from '@/api/api'
+import { format } from 'date-fns'
 import { notify } from '@kyvg/vue3-notification';
 
 const packages = ref([]);
 const license = ref({});
 const userData = ref({
-    name: "",
-    phone: "",
-    email: "",
+    id: 1,
+    name: "Hoàng Văn Nam",
+    phone: "04954594545",
+    email: "45345345345",
     role: 1,
     license: null
 })
@@ -50,7 +52,6 @@ const fetchLicenses = async () => {
         });
         if (response.success) {
             license.value = response.license
-            userData.value.date = license.value.date
         }
     } catch (error) {
         console.error('Không thể tải danh sách gói cước:', error)
@@ -71,13 +72,14 @@ const closePopup = () => {
 const submitForm = async () => {
     try {
         if (props.isEdit) {
+            console.log(userData.value);
             const response = await request.post(END_POINT.USER_UPDATE, userData.value)
             if (response.success) {
                 
                 const licenseData = {
                     user_id: userData.value.id,
                     pack_id: userData.value.license,
-                    date: userData.value.date,
+                    date: format(new Date(), 'yyyy-MM-dd'),
                     id: license.value.id
                 }
                 await request.post(END_POINT.LICENSE_UPDATE, licenseData)
@@ -101,9 +103,8 @@ const submitForm = async () => {
 </script>
 
 <template>
-    <div class="popup-overlay">
+    <div class="popup-overlay" @click.self="closePopup">
         <div class="popup-container">
-            <button class="close-btn" @click="closePopup"><i class="bx bxs-x-circle"></i></button>
             <h2>Cập nhật Thông Tin Người Dùng</h2>
             <form @submit.prevent="submitForm">
                 <div class="form-row">
@@ -122,10 +123,7 @@ const submitForm = async () => {
                             <label for="email">Email:</label>
                             <input type="email" id="email" v-model="userData.email" required />
                         </div>
-                        <div class="form-group">
-                            <label for="expiredDate">Ngày hết hạn:</label>
-                            <input type="date" id="expiredDate" v-model="userData.date" required />
-                        </div>
+
                         <div class="form-group">
                             <label for="role">Vai Trò:</label>
                             <select id="role" v-model="userData.role" required>
@@ -179,27 +177,11 @@ const submitForm = async () => {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    position: relative;
 }
 
-.close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 24px;
-    color: var(--color-primary);
-    transition: color 0.2s ease;
-}
-
-.close-btn:hover {
-    opacity: 0.8;
-}
 .popup-container h2 {
     font-size: 26px;
-    color: var(--color-primary);
+    color: #e63939;
     font-weight: bold;
     margin-bottom: 5px;
     text-align: center;
@@ -219,16 +201,14 @@ const submitForm = async () => {
 .form-group input[type="text"],
 .form-group input[type="tel"],
 .form-group input[type="email"],
-.form-group input[type="date"],
 .form-group select {
     width: 100%;
     padding: 0.5rem;
-    border: 1px solid var(--color-primary);
+    border: 1px solid #ff3f3f;
     border-radius: 4px;
     font-size: 1rem;
     background-color: #fff0f0;
     color: #333;
-    cursor: pointer;
 }
 
 .form-actions {
@@ -239,7 +219,7 @@ const submitForm = async () => {
 
 .save-btn,
 .cancel-btn {
-    background-color: var(--color-primary);
+    background-color: #ff3f3f;
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -248,9 +228,7 @@ const submitForm = async () => {
     font-size: 1rem;
     transition: background-color 0.3s;
 }
-.save-btn {
-    background-color: #28a745;
-}
+
 .save-btn:hover,
 .cancel-btn:hover {
     background-color: #e63939;
