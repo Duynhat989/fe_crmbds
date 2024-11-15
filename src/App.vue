@@ -84,7 +84,7 @@ const handleLogOut = async (event) => {
         <div class="user">
           <div class="user_profile flex">
             <div class="avata flex" style="align-items: center;">
-              <img src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" alt="" width="30" height="30">
+              <img src="https://cdn3.iconfinder.com/data/icons/business-avatar-1/512/3_avatar-512.png" alt="" width="30" height="30">
             </div>
             <div class="username" style="padding-left: 10px;">
               <h3>{{ user.name }}</h3>

@@ -106,7 +106,6 @@ onMounted(() => {
 <template>
   <div class="main-container">
     <div class="change-type">
-      <button class="list">Danh sách</button>
     </div>
     <div class="header-title">
       <h1 class="title">Quản lý trợ lý AI</h1>
