@@ -200,29 +200,28 @@ li {
   border: 1px solid rgba(170, 170, 170, 0);
   transition: all 0.5s;
   border-radius: 10px;
-  color: #fff;
-  background-color: var(--color-primary);
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  color: var(--color-primary);
+  /* box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; */
 }
 .menu .active,
 .menu_item:hover {
-  background-color: #a5d4e0;
+  background-color: var(--color-primary);
   cursor: pointer;
 
 }
 .menu .active .button,
 .menu_item:hover .button {
-  color: black;
+  color: white;
 }
 
 .menu_item i {
-  font-size: 1.5em;
+  font-size: 1em;
 }
 
 li .button {
   display: flex;
   align-items: center;
-  color: #ececec;
+  /* color: #ececec; */
 }
 
 
