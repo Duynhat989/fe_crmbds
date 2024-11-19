@@ -70,7 +70,7 @@ onMounted(() => {
       <div class="setting_content">
         <div v-for="api in apiData" :key="api.id" class="row-set flex">
           <div class="input-text">
-            <label :for="'api_' + api.id">{{ api.name }}</label>
+            <label :for="'api_' + api.id">{{ api.notify }}</label>
             <input v-if="api.name === 'API_KEY'" type="text" :id="'api_' + api.id" class="input" v-model="api.value"
               @input="handleChange(api.name, api.value)" />
 
@@ -80,7 +80,7 @@ onMounted(() => {
               <option value="0">Off</option>
             </select>
 
-            <select v-else-if="['API_TEAMTRAINING', 'API_SUMMARY', 'API_FINANCEAL', 'API_ESTATE', 'API_CONTRACT','API_REP_CONTRACT'].includes(api.name)"
+            <select v-else-if="['API_TEAMTRAINING', 'API_SUMMARY', 'API_FINANCEAL', 'API_ESTATE', 'API_CONTRACT','API_REP_CONTRACT','API_INVESTADVISE'].includes(api.name)"
               :id="'api_' + api.id" class="input" v-model="api.value" @change="handleChange(api.name, api.value)">
               <option v-for="assistant in assistants" :key="assistant.id" :value="assistant.id">
                 {{ assistant.name }}

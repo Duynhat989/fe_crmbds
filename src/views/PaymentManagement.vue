@@ -82,7 +82,7 @@ onMounted(() => {
                         <th>Tên gói cước</th>
                         <th>Mô tả gói cước</th>
                         <th>Giá tiền</th>
-                        <th>Tính năng</th>
+                        <!-- <th>Tính năng</th> -->
                         <th>Lượt yêu cầu</th>
                         <th>Người dùng</th>
                         <th style="width: 150px;">Hành động</th>
@@ -94,7 +94,7 @@ onMounted(() => {
                         <td style="max-width: 200px;">{{ pay.package.name }}</td>
                         <td>{{ pay.package.description }}</td>
                         <td>{{ formatCurrency(pay.must_pay) }}</td>
-                        <td v-html="getFeatureNames(pay.package.features)"></td>
+                        <!-- <td v-html="getFeatureNames(pay.package.features)"></td> -->
                         <td>{{ pay.package.ask }}</td>
                         <td>{{ pay.user.name }}</td>
                         <td class="table-button">
