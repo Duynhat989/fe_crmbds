@@ -170,6 +170,8 @@ const submitForm = async () => {
     max-width: 90%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .close-btn {
@@ -225,6 +227,7 @@ select {
 
 textarea {
     resize: vertical;
+    height: 300px;
 }
 
 .popup-actions {

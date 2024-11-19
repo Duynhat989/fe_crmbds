@@ -5,6 +5,8 @@ import { END_POINT } from '@/api/api';
 import request from '@/utils/request';
 import AddAssistantPopup from '@/components/AddAssistantPopup.vue';
 import { notify } from '@kyvg/vue3-notification';
+import PaginationView from '@/components/Pagination.vue';
+
 const assistants = ref([]);
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
@@ -88,16 +90,11 @@ const addOrUpdateAssistant = (newAssistant) => {
   }
 };
 
-const totalPages = computed(() => {
-  return Math.ceil(total.value / itemsPerPage.value);
-});
-
 const changePage = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-    fetchAssistants(currentPage.value, itemsPerPage.value);
-  }
+  currentPage.value = page;
+  fetchAssistants(currentPage.value, itemsPerPage.value);
 };
+
 onMounted(() => {
   fetchAssistants();
 });
@@ -145,11 +142,8 @@ onMounted(() => {
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span @click="changePage(page)" v-for="(page, index) in totalPages" :class="{ active: currentPage === page }"
-          class="page-number">
-          {{ page }}</span>
-      </div>
+      <PaginationView :total="total" :itemsPerPage="itemsPerPage" :currentPage="currentPage"
+        @changePage="changePage" />
     </div>
     <AddAssistantPopup v-if="showPopup" @close="closePopup" :editAssistantId="editAssistantId"
       @submit="addOrUpdateAssistant" />

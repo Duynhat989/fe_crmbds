@@ -67,6 +67,9 @@ onMounted(() => {
 <template>
   <div class="main-content">
     <div class="setting">
+      <div class="header-title">
+        <h1 class="title">Cập nhật cài đặt chung</h1>
+      </div>
       <div class="setting_content">
         <div v-for="api in apiData" :key="api.id" class="row-set flex">
           <div class="input-text">
@@ -76,8 +79,8 @@ onMounted(() => {
 
             <select v-else-if="api.name === 'API_STATUS'" :id="'api_' + api.id" class="input" v-model="api.value"
               @change="handleChange(api.name, api.value)">
-              <option value="1">On</option>
-              <option value="0">Off</option>
+              <option value="1">Bảo trì</option>
+              <option value="0">Hoạt động</option>
             </select>
 
             <select v-else-if="['API_TEAMTRAINING', 'API_SUMMARY', 'API_FINANCEAL', 'API_ESTATE', 'API_CONTRACT','API_REP_CONTRACT','API_INVESTADVISE'].includes(api.name)"
@@ -98,9 +101,12 @@ onMounted(() => {
 <style scoped>
 .main-content {
   padding: 20px;
-  background-color: #f9f9f9;
 }
-
+.header-title {
+  text-align: center;
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
 .setting_content {
   max-width: 800px;
   margin: 0 auto;
@@ -135,7 +141,7 @@ onMounted(() => {
 .update-button {
   margin-top: 20px;
   padding: 10px 15px;
-  background-color: #4CAF50;
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: 4px;
@@ -144,6 +150,6 @@ onMounted(() => {
 }
 
 .update-button:hover {
-  background-color: #45a049;
+  background-color: #c47f7f;
 }
 </style>

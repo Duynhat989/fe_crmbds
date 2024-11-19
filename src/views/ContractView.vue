@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { END_POINT } from '@/api/api';
 import request from '@/utils/request';
 import ContractPopup from '@/components/ContractPopup.vue';
+import PaginationView from '@/components/Pagination.vue';
 
 
 const contracts = ref([]);
@@ -81,11 +82,10 @@ const totalPages = computed(() => {
 });
 
 const changePage = (page) => {
-  if (page > 1 && page <= totalPages.value) {
-    currentPage.value = page;
-    fetchContracts(currentPage.value, itemsPerPage.value);
-  }
+  currentPage.value = page;
+  fetchContracts(currentPage.value, itemsPerPage.value);
 };
+
 const getInputNames = (input) => {
   if (typeof input === 'string') {
     try {
@@ -149,11 +149,8 @@ onMounted(() => {
         </tbody>
 
       </table>
-      <div class="pagination">
-        <span @click="changePage(page)" v-for="(page, index) in totalPages" :class="{ active: currentPage === page }"
-          class="page-number">
-          {{ page }}</span>
-      </div>
+      <PaginationView :total="total" :itemsPerPage="itemsPerPage" :currentPage="currentPage"
+        @changePage="changePage" />
     </div>
     <ContractPopup v-if="showPopup" :selectedContract="selectedContract" :isEdit="isEdit" @close="closePopup"
       @saved="fetchContracts" />

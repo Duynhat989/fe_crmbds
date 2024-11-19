@@ -221,12 +221,12 @@ onMounted(() => {
                     <div class="form-column">
                         <div class="form-group">
                             <label for="name">Tên Trợ Lý:</label>
-                            <input type="text" id="name" v-model="assistantData.name" required />
+                            <input type="text" id="name" placeholder="Nhập tên trợ lý" v-model="assistantData.name" required />
                         </div>
 
                         <div class="form-group">
                             <label for="detail">Chi tiết:</label>
-                            <textarea id="detail" v-model="assistantData.detail" required></textarea>
+                            <textarea id="detail" placeholder="Nhập chi tiết"  v-model="assistantData.detail" required></textarea>
                         </div>
 
                         <div class="form-group">
@@ -345,7 +345,7 @@ onMounted(() => {
     border: 1px solid var(--color-primary);
     border-radius: 4px;
     font-size: 1rem;
-    background-color: #fff0f0;
+    background-color: #fff;
     color: #333;
 }
 

@@ -24,7 +24,6 @@ const handleLogin = async (event) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     await store.dispatch('login', { email: email.value, password: password.value });
     const userInfo = store.state.user
-    console.log(userInfo)
     if (userInfo.role != 1) {
       notify({
         title: 'Lỗi',

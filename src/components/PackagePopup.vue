@@ -13,6 +13,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'saved'])
 const courses = ref([]);
 const assistants = ref([]);
+const listFeatures = ref([]);
 const packageData = ref({
     id: null,
     name: '',
@@ -27,7 +28,7 @@ const fetchCourses = async () => {
     const response = await request.get(END_POINT.COURSES_LIST);
     courses.value = response.courses;
   } catch (error) {
-    console.error('Lỗi lấy danh sách trợ lý:', error);
+    console.error('Lỗi lấy danh sách khóa học:', error);
   }
 };
 const fetchAssistants = async () => {
@@ -40,28 +41,31 @@ const fetchAssistants = async () => {
 };
 
 const isFeatureSelected = (feature) => {
-    return packageData.value.features.some(f => f.id === feature.id)
-}
+    return listFeatures.value.some(f => f.id === feature.id && f.type === feature.type);
+};
 
 const toggleFeature = (feature) => {
     const index = packageData.value.features.findIndex(f => f.id === feature.id)
     if (index === -1) {
-        packageData.value.features.push({ type: feature.type, id: feature.id , name: feature.name })
+        packageData.value.features.push({ type: feature.type, id: feature.id, name: feature.name });
     } else {
         packageData.value.features.splice(index, 1)
     }
 };
+
 watch(
     () => props.package,
     (newPackage) => {
         if (newPackage) {
+            const features = Array.isArray(newPackage.features)
+                ? newPackage.features
+                : JSON.parse(newPackage.features || '[]');
             const newPackageUp = {
                 ...newPackage,
-                features: Array.isArray(newPackage.features)
-                    ? newPackage.features
-                    : JSON.parse(newPackage.features || '[]')
+                features: []
             };
             packageData.value = newPackageUp;
+            listFeatures.value =  features;
             fetchCourses();
             fetchAssistants();
         } else {
@@ -73,6 +77,7 @@ watch(
                 features: [],
                 requests: 0
             }
+            listFeatures.value = [];
         }
     },
     { immediate: true }
@@ -89,7 +94,6 @@ const submitForm = async () => {
             features: JSON.stringify(packageData.value.features),
         };
         let response;
-
         if (props.isEdit) {
             response = await request.post(END_POINT.PACKAGE_UPDATE, dataToSubmit);
         } else {

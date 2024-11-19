@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { END_POINT } from '@/api/api';
 import request from '@/utils/request';
 import UserPopup from '@/components/UserPopup.vue';
+import PaginationView from '@/components/Pagination.vue';
 
 
 const users = ref([]);
@@ -91,11 +92,10 @@ const fetchUsers = async (page = 1, limit = 10) => {
 const totalPages = computed(() => {
   return Math.ceil(total.value / itemsPerPage.value);
 });
+
 const changePage = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-    fetchUsers(currentPage.value, itemsPerPage.value);
-  }
+  currentPage.value = page;
+  fetchUsers(currentPage.value, itemsPerPage.value);
 };
 
 onMounted(() => {
@@ -141,11 +141,8 @@ onMounted(() => {
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span @click="changePage(page)" v-for="(page, index) in totalPages" :class="{ active: currentPage === page }"
-          class="page-number">
-          {{ page }}</span>
-      </div>
+      <PaginationView :total="total" :itemsPerPage="itemsPerPage" :currentPage="currentPage"
+      @changePage="changePage" />
     </div>
     <UserPopup v-if="showPopup" :user="selectedUser" :isEdit="isEdit" @close="closePopup" @saved="fetchUsers" />
   </div>

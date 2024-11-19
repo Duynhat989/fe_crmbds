@@ -9,6 +9,7 @@ const courses = ref([]);
 const showPopup = ref(false)
 const selectedCourse = ref(null)
 const isEdit = ref(false)
+import PaginationView from '@/components/Pagination.vue';
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
@@ -35,11 +36,10 @@ const closePopup = () => {
 const totalPages = computed(() => {
   return Math.ceil(total.value / itemsPerPage.value);
 });
+
 const changePage = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-    fetchCourses(currentPage.value, itemsPerPage.value);
-  }
+  currentPage.value = page;
+  fetchCourses(currentPage.value, itemsPerPage.value);
 };
 const fetchCourses = async (page = currentPage.value, limit = itemsPerPage.value) => {
   try {
@@ -131,11 +131,8 @@ onMounted(() => {
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span @click="changePage(page)" v-for="(page, index) in totalPages" :class="{ active: currentPage === page }"
-          class="page-number">
-          {{ page }}</span>
-      </div>
+      <PaginationView :total="total" :itemsPerPage="itemsPerPage" :currentPage="currentPage"
+      @changePage="changePage" />
     </div>
     <CoursePopup v-if="showPopup" :selectedCourse="selectedCourse" :isEdit="isEdit" @close="closePopup"
       @saved="fetchCourses" />

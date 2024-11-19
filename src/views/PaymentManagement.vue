@@ -4,10 +4,12 @@ import { END_POINT } from '@/api/api';
 import request from '@/utils/request';
 import { formatCurrency } from '@/utils/format';
 import { notify } from '@kyvg/vue3-notification';
+import PaginationView from '@/components/Pagination.vue';
 const payments = ref([]);
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const total = ref(0);
+
 const fetchPayments = async () => {
     try {
         const response = await request.get(END_POINT.PAYMENTS_LIST);
@@ -24,12 +26,12 @@ const fetchPayments = async () => {
 const totalPages = computed(() => {
     return Math.ceil(total.value / itemsPerPage.value);
 });
+
 const changePage = (page) => {
-    if (page >= 1 && page <= totalPages.value) {
-        currentPage.value = page;
-        fetchUsers(currentPage.value, itemsPerPage.value);
-    }
+  currentPage.value = page;
+  fetchAssistants(currentPage.value, itemsPerPage.value);
 };
+
 const getFeatureNames = (features) => {
     const parsedFeatures = JSON.parse(features);
     return `<ul style ="list-style-position: inside;">${parsedFeatures.map(f => `<li>${f.name}</li>`).join('')}</ul>`;
@@ -106,11 +108,8 @@ onMounted(() => {
                     </tr>
                 </tbody>
             </table>
-            <div class="pagination">
-                <span @click="changePage(page)" v-for="(page, index) in totalPages"
-                    :class="{ active: currentPage === page }" class="page-number">
-                    {{ page }}</span>
-            </div>
+            <PaginationView :total="total" :itemsPerPage="itemsPerPage" :currentPage="currentPage"
+            @changePage="changePage" />
         </div>
     </div>
 

@@ -3,10 +3,12 @@ import { ref, computed, onMounted } from 'vue';
 import { END_POINT } from '@/api/api';
 import request from '@/utils/request';
 import EstatePopup from '@/components/EstatePopup.vue';
+import PaginationView from '@/components/Pagination.vue';
+
 const viewType = ref('list');
 const estales = ref([]);
 const currentPage = ref(1);
-const itemsPerPage = ref(8);
+const itemsPerPage = ref(10);
 const total = ref(0);
 const showPopup = ref(false);
 const editEstateId = ref(null);
@@ -71,16 +73,14 @@ const deleteEstate = async (estaleId) => {
     });
   }
 }
-const totalPages = computed(() => {
-  return Math.ceil(total.value / itemsPerPage.value);
-});
-
+// const totalPages = computed(() => {
+//   return Math.ceil(total.value / itemsPerPage.value);
+// });
 const changePage = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-    fetchEstates(currentPage.value, itemsPerPage.value);
-  }
+  currentPage.value = page;
+  fetchEstates(currentPage.value, itemsPerPage.value);
 };
+
 onMounted(() => {
   fetchEstates();
 });
@@ -101,14 +101,14 @@ onMounted(() => {
       <table class="table" style="border: 1px solid rgba(128, 128, 128, 0.288);;padding: 10px;">
         <thead>
           <tr>
-            <th>Số thứ tự</th>
+            <th>STT</th>
             <th>Hình ảnh</th>
             <th>Tên tiêu đề</th>
             <th>Mô tả</th>
             <th>Mô tả chi tiết</th>
             <th>Đường dẫn URL</th>
             <th>Trạng thái</th>
-            <th style="width: 150px;"></th>
+            <th style="width: 150px;"> Hành động</th>
           </tr>
         </thead>
         <tbody>
@@ -118,12 +118,18 @@ onMounted(() => {
               <img :src="item.image" alt="Estate Image" style="width: 50px; height: 50px;" />
             </td>
             <td>{{ item.title }}</td>
-            <td>{{ item.description }}</td>
             <td>
-              <div>{{ item.area }}</div>
-              <div>{{ item.price }}</div>
-              <div>{{ item.location }}</div>
-              <div>{{ item.exten }}</div>
+              <div class="description">
+                {{ item.description }}
+              </div>
+            </td>
+            <td >
+              <div>
+                <p>{{ item.area }}</p>
+                <p>{{ item.price }}</p>
+                <p>{{ item.location }}</p>
+                <p>{{ item.exten }}</p>
+              </div>
             </td>
             <td><a :href="item.base_url" target="_blank">{{ item.base_url }}</a></td>
             <td>{{ item.status }}</td>
@@ -134,11 +140,8 @@ onMounted(() => {
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span @click="changePage(page)" v-for="(page, index) in totalPages" :class="{ active: currentPage === page }"
-          class="page-number">
-          {{ page }}</span>
-      </div>
+      <PaginationView :total="total" :itemsPerPage="itemsPerPage" :currentPage="currentPage"
+      @changePage="changePage" />
     </div>
     <EstatePopup v-if="showPopup" :selectedEstale="selectedEstale" :isEdit="isEdit" @close="closePopup"
       @saved="fetchEstates" />
@@ -192,11 +195,27 @@ onMounted(() => {
 .main-content {
   width: 100%;
 }
-
-.table {
-  width: 100%;
+.description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: justify;
 }
-
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+th:nth-child(3),
+td:nth-child(3) {
+  width: 300px;
+}
+th:nth-child(4),
+td:nth-child(4) {
+  width: 400px;
+}
 .table-button .button {
   padding: 10px;
   margin-right: 5px;
@@ -224,8 +243,7 @@ onMounted(() => {
 
 td {
   padding: 5px 10px;
-  border-top: 1px solid rgba(128, 128, 128, 0.288);
-  border-left: 1px solid rgba(128, 128, 128, 0.288);
+  border: 1px solid rgba(128, 128, 128, 0.288);
   margin: 0;
 }
 

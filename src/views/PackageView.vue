@@ -92,15 +92,6 @@ const paginatedItems = computed(() => {
   return packages.value.slice(start, end);
 });
 
-const totalPages = computed(() => {
-  return Math.ceil(packages.value.length / itemsPerPage.value);
-});
-
-const changePage = (page) => {
-  if (page > 0 && page <= totalPages.value) {
-    currentPage.value = page;
-  }
-};
 onMounted(() => {
   fetchPackages();
 });
@@ -145,11 +136,6 @@ onMounted(() => {
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span @click="changePage(page)" v-for="(page, index) in totalPages" :class="{ active: currentPage === page }"
-          class="page-number">
-          {{ page }}</span>
-      </div>
     </div>
     <PackagePopup v-if="showPopup"  :package="selectedPackage" :isEdit="isEdit" @close="closePopup" @saved="fetchPackages" />
   </div>
