@@ -20,15 +20,15 @@ const isEdit = ref(false)
 
 const showUserPopup = ref(false);
 const selectedUserId = ref(null);
-const selectedStatus = ref(1);
+const selectedStatus = ref(2);
 const startday = ref(''); 
 const endday = ref(''); 
 
-const addNewPayment = () => {
-  showPopup.value = true;
-  isEdit.value = false
-  selectedPayment.value = null;
-};
+// const addNewPayment = () => {
+//   showPopup.value = true;
+//   isEdit.value = false
+//   selectedPayment.value = null;
+// };
 const selectUser = (user) => {
     searchQuery.value = user.name;
     selectedUserId.value = user.id; 
@@ -47,7 +47,6 @@ const closePopup = () => {
   showPopup.value = false
   selectedPayment.value = null
 }
-
 
 const searchQuery = ref('');
 
@@ -78,7 +77,16 @@ watch(
 
 const fetchPayments = async () => {
     try {
-        const response = await request.get(END_POINT.PAYMENTS_LIST);
+        const queryParams = new URLSearchParams({
+            status_pay: selectedStatus.value || '',
+            startday: startday.value || '',
+            endday: endday.value || '',
+            page: currentPage.value || 1,
+            limit: itemsPerPage.value || 10,
+        }).toString();
+
+        const response = await request.get(`${END_POINT.PAYMENTS_LIST}?${queryParams}`, {});
+
         payments.value = response.pays;
         total.value = response.total;
         currentPage.value = response.page;
@@ -91,8 +99,6 @@ const changePage = (page) => {
   currentPage.value = page;
   fetchAssistants(currentPage.value, itemsPerPage.value);
 };
-
-
 const getStatusClassAndText = (status) => {
   switch (status) {
     case 1:
@@ -166,7 +172,7 @@ onMounted(() => {
 
             <div class="filter-row">
                 <label for="status-select">Trạng thái:</label>
-                <select id="status-select" v-model.number="selectedStatus">
+                <select id="status-select" v-model.number="selectedStatus" @change="fetchPayments">
                     <option value="">Tất cả</option>
                     <option value="1">Chờ xử lý</option>
                     <option value="2">Đã thanh toán</option>
@@ -176,10 +182,10 @@ onMounted(() => {
 
             <div class="date-filter-row">
                 <label for="startday">Ngày bắt đầu:</label>
-                <input type="date" id="startday" v-model="startday" />
+                <input type="date" id="startday" v-model="startday" @change="fetchPayments" />
                 
                 <label for="endday">Ngày kết thúc:</label>
-                <input type="date" id="endday" v-model="endday" />
+                <input type="date" id="endday" v-model="endday" @change="fetchPayments" />
             </div>
         </div>
         <div class="main-content">
