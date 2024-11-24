@@ -30,7 +30,7 @@ const endday = ref('');
 //   selectedPayment.value = null;
 // };
 const selectUser = (user) => {
-    searchQuery.value = user.name;
+    // searchQuery.value = user.name;
     selectedUserId.value = user.id; 
     showUserPopup.value = true; 
     users.value = []; 
@@ -71,6 +71,10 @@ watch(
         if (newQuery.trim()) {
             fetchPaymentsByUser(newQuery); 
         } 
+        if (!newQuery.trim()) {
+            users.value = [];
+            return;
+        }
     }, 1000)
   }
 );
