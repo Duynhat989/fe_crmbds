@@ -21,18 +21,16 @@ const itemsPerPage = ref(10);
 const fetchPayments = async () => {
     try {
         isLoading.value = true;
-        const params = {
+        const queryParams = new URLSearchParams({
             user_id: props.user_id,
             status_pay: props.status_pay,
             startday: props.startday,
             endday: props.endday,
             page: currentPage.value,
             limit: itemsPerPage.value,
-        };
+        }).toString();
 
-        const response = await request.post(END_POINT.PAYMENTS_FIND, {
-            params,
-        });
+        const response = await request.post(`${END_POINT.PAYMENTS_FIND}?${queryParams}`, {});
 
         payments.value = response.pays || [];
         total.value = response.total || 0;
