@@ -194,7 +194,6 @@ li {
 }
 
 .menu_item {
-  padding: 15px 5px;
   padding-left: 10px;
   display: flex;
   border: 1px solid rgba(170, 170, 170, 0);
@@ -202,6 +201,8 @@ li {
   border-radius: 10px;
   color: var(--color-primary);
   /* box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; */
+}
+.menu_item a{
 }
 .menu .active,
 .menu_item:hover {
@@ -221,7 +222,8 @@ li {
 li .button {
   display: flex;
   align-items: center;
-  /* color: #ececec; */
+  padding: 15px 5px;
+  width: 100%;
 }
 
 

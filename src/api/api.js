@@ -65,8 +65,12 @@ export const END_POINT = {
   CONTRACT_DELETE: '/api/contract/delete', // Xóa bài giảng
 
 
-  PAYMENTS_LIST: '/api/pays', // Update Promts
-  PAYMENT_DELETE: '/api/pay/delete', // Update Promts
+  PAYMENTS_LIST: '/api/pays', // Danh sach thanh toan
+  PAYMENT_CREATE: '/api/pay/create', // Cập nhật thanh toan
+  PAYMENT_UPDATE: '/api/pay/update', // Thêm thanh toan
+  PAYMENT_DELETE: '/api/pay/delete', // Xoa thanh toan
+  PAYMENTS_FIND_USER: '/api/pay/users', // Tim kiếm thanh toan
+  PAYMENTS_FIND: '/api/pay/find', 
 
   // estales APIs
   ESTALES_LIST: '/api/estales', // Danh sách bài viết bất động sản
