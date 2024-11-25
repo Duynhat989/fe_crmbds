@@ -1,10 +1,11 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted ,watch} from 'vue';
 import { END_POINT } from '@/api/api';
 import request from '@/utils/request';
 import UserPopup from '@/components/UserPopup.vue';
 import PaginationView from '@/components/Pagination.vue';
 
+const searchQuery = ref('');
 
 const users = ref([]);
 const showPopup = ref(false)
@@ -68,10 +69,11 @@ const fetchLicenses = async (userId) => {
     return null;
   }
 };
-const fetchUsers = async (page = 1, limit = 10) => {
+const fetchUsers = async (page = 1, limit = 10, search = searchQuery.value) => {
   try {
     const response = await request.get(END_POINT.USER_LIST, {
       params: {
+        search,
         page,
         limit
       }
@@ -97,6 +99,16 @@ const changePage = (page) => {
   currentPage.value = page;
   fetchUsers(currentPage.value, itemsPerPage.value);
 };
+let timeout;
+watch(
+  searchQuery,
+  (newQuery) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      fetchUsers(currentPage.value, itemsPerPage.value, newQuery);
+    }, 2000);
+  }
+);
 
 onMounted(() => {
   fetchUsers();
@@ -110,6 +122,12 @@ onMounted(() => {
     </div>
     <div class="header-title">
       <h1 class="title">Danh sách người dùng</h1>
+    </div>
+    <div class="search-bar">
+        <div class="search-row">
+            <i class='bx bx-search-alt-2 search-icon'></i>
+            <input type="text" v-model="searchQuery" placeholder="Nhập tìm kiếm người dùng..." class="search-input" />
+        </div>
     </div>
     <div class="main-content">
       <table class="table" style="border: 1px solid rgba(128, 128, 128, 0.288);;padding: 10px;">
@@ -153,7 +171,7 @@ onMounted(() => {
 .header-title {
   text-align: center;
   margin-top: 40px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
 .header-title .title {
@@ -163,6 +181,48 @@ onMounted(() => {
   line-height: 40px;
 }
 
+.search-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 60%;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+.search-row {
+    position: relative;
+    width: 100%;
+}
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #aaa;
+    pointer-events: none;
+}
+.search-input {
+    width: 100%;
+    padding: 10px 20px 10px 40px;
+    border: 2px solid #fff;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.search-input:focus {
+    border-color: #4a90e2;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.search-input::placeholder {
+    color: #aaa;
+    font-size: 14px;
+}
 .main-container {
   /* max-width: 1100px; */
   margin: 40px auto;

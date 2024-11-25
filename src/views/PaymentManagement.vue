@@ -6,7 +6,7 @@ import { formatCurrency } from '@/utils/format';
 import { notify } from '@kyvg/vue3-notification';
 import PaginationView from '@/components/Pagination.vue';
 import PaymentPopup from '@/components/PaymentPopup.vue';
-import PaymentUserPopup from '@/components/PaymentUserPopup.vue';
+// import PaymentUserPopup from '@/components/PaymentUserPopup.vue';
 
 const payments = ref([]);
 const users  = ref([]);
@@ -18,9 +18,9 @@ const showPopup = ref(false)
 const selectedPayment = ref(null)
 const isEdit = ref(false)
 
-const showUserPopup = ref(false);
+// const showUserPopup = ref(false);
 const selectedUserId = ref(null);
-const selectedStatus = ref(2);
+const selectedStatus = ref('');
 const startday = ref(''); 
 const endday = ref(''); 
 
@@ -29,15 +29,16 @@ const endday = ref('');
 //   isEdit.value = false
 //   selectedPayment.value = null;
 // };
-const selectUser = (user) => {
+const selectUser = async (user) => {
     // searchQuery.value = user.name;
     selectedUserId.value = user.id; 
-    showUserPopup.value = true; 
+    // showUserPopup.value = true; 
+    await fetchPayments();
     users.value = []; 
 };
-const closePaymentUserPopup = () => {
-  showUserPopup.value = false;
-};
+// const closePaymentUserPopup = () => {
+//   showUserPopup.value = false;
+// };
 const editPayment = (pay = null, edit = false) => {
     selectedPayment.value = pay
   isEdit.value = edit
@@ -87,6 +88,7 @@ const fetchPayments = async () => {
             endday: endday.value || '',
             page: currentPage.value || 1,
             limit: itemsPerPage.value || 10,
+            user_id: selectedUserId.value || ""
         }).toString();
 
         const response = await request.get(`${END_POINT.PAYMENTS_LIST}?${queryParams}`, {});
@@ -101,7 +103,7 @@ const fetchPayments = async () => {
 };
 const changePage = (page) => {
   currentPage.value = page;
-  fetchAssistants(currentPage.value, itemsPerPage.value);
+  fetchPayments(currentPage.value, itemsPerPage.value);
 };
 const getStatusClassAndText = (status) => {
   switch (status) {
@@ -205,6 +207,7 @@ onMounted(() => {
                         <th>Giá tiền</th>
                         <th>Lượt yêu cầu</th>
                         <th>Người dùng</th>
+                        <!-- <th>Thời gian</th> -->
                         <th>Trạng thái</th>
                         <th style="width: 150px;">Hành động</th>
                     </tr>
@@ -235,14 +238,14 @@ onMounted(() => {
         </div>
         <PaymentPopup v-if="showPopup" :selectedPayment="selectedPayment" :isEdit="isEdit" @close="closePopup"
             @saved="fetchPayments" />
-        <PaymentUserPopup 
+        <!-- <PaymentUserPopup 
             v-if="showUserPopup"
             :user_id="selectedUserId"
             :startday="startday"
             :endday="endday"
             :status_pay="selectedStatus"
             @close="closePaymentUserPopup"
-        />
+        /> -->
     </div>
 
 </template>
@@ -341,7 +344,6 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex: 1 1 200px;
 }
 
 .filter-row select {

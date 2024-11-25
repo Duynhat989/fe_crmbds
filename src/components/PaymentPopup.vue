@@ -10,7 +10,7 @@ const users  = ref([]);
 
 const paymentData =  ref({
     user_id: '',
-    pay_status: 1, 
+    status_pay: 1, 
     invoice_code: '',
     must_pay: '',
     package_id: '',
@@ -29,7 +29,7 @@ const emit = defineEmits(['close', 'saved'])
 const resetForm = () => {
     paymentData.value = {
         user_id: '',
-        pay_status: 1, 
+        status_pay: 1, 
         invoice_code: '',
         must_pay: '',
         package_id: '',
@@ -62,7 +62,7 @@ watch(
             console.log(newPayment);
             paymentData.value = {
                 user_id: newPayment.user_id,
-                pay_status: newPayment.status_pay,
+                status_pay: newPayment.status_pay,
                 invoice_code: newPayment.invoice_code || '',
                 must_pay: newPayment.must_pay,
                 package_id: newPayment.package_id,
@@ -85,13 +85,12 @@ const submitForm = async () => {
     try {
         const dataToSubmit = {
             ...paymentData.value,
+            status_pay: Number(paymentData.value.status_pay),
         };
         let response;
         if (props.isEdit) {
             response = await request.post(END_POINT.PAYMENT_UPDATE, dataToSubmit);
-        } else {
-            response = await request.post(END_POINT.PAYMENT_CREATE, dataToSubmit);
-        }
+        } 
         if (response.success) {
             emit('saved')
             notify({
@@ -146,12 +145,12 @@ onMounted(() => {
                 </div>
 
                 <div class="form-group">
-                    <label for="pay_status">Trạng thái thanh toán:</label>
-                    <select id="pay_status" v-model="paymentData.pay_status">
+                    <label for="status_pay">Trạng thái thanh toán:</label>
+                    <select id="status_pay" v-model.number="paymentData.status_pay">
                         <option value="" disabled>Trạng thái</option>
-                        <option value="1">Chờ</option>
-                        <option value="2">Đã thanh toán</option>
-                        <option value="3">Hủy</option>
+                        <option :value="1">Chờ</option>
+                        <option :value="2">Đã thanh toán</option>
+                        <option :value="3">Hủy</option>
                     </select>
                 </div>
 

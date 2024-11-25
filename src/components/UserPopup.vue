@@ -7,6 +7,7 @@ import { notify } from '@kyvg/vue3-notification';
 
 const packages = ref([]);
 const license = ref({});
+const licenseDate = ref("");
 const userData = ref({
     id: 1,
     name: "Hoàng Văn Nam",
@@ -52,6 +53,7 @@ const fetchLicenses = async () => {
         });
         if (response.success) {
             license.value = response.license
+            licenseDate.value = format(new Date(license.value.date), "yyyy-MM-dd");
         }
     } catch (error) {
         console.error('Không thể tải danh sách gói cước:', error)
@@ -72,14 +74,12 @@ const closePopup = () => {
 const submitForm = async () => {
     try {
         if (props.isEdit) {
-            console.log(userData.value);
             const response = await request.post(END_POINT.USER_UPDATE, userData.value)
             if (response.success) {
-                
                 const licenseData = {
                     user_id: userData.value.id,
                     pack_id: userData.value.license,
-                    date: format(new Date(), 'yyyy-MM-dd'),
+                    date: licenseDate.value,
                     id: license.value.id
                 }
                 await request.post(END_POINT.LICENSE_UPDATE, licenseData)
@@ -123,7 +123,6 @@ const submitForm = async () => {
                             <label for="email">Email:</label>
                             <input type="email" id="email" v-model="userData.email" required />
                         </div>
-
                         <div class="form-group">
                             <label for="role">Vai Trò:</label>
                             <select id="role" v-model="userData.role" required>
@@ -142,6 +141,10 @@ const submitForm = async () => {
                                 </option>
                             </select>
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="licenseDate">Ngày hết hạn:</label>
+                        <input type="date" id="licenseDate" v-model="licenseDate" required />
                     </div>
                 </div>
                 <div class="form-group form-actions">
@@ -210,7 +213,54 @@ const submitForm = async () => {
     background-color: #fff;
     color: #333;
 }
+input[type="date"] {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s, box-shadow 0.3s;
+    appearance: none; 
+    background-color: #fff;
+    cursor: pointer;
+}
+input[type="date"]:hover,
+input[type="date"]:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+    outline: none;
+    cursor: text;
+}
 
+input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    cursor: pointer;
+}
+
+input[type="date"]:hover::-webkit-calendar-picker-indicator,
+input[type="date"]:focus::-webkit-calendar-picker-indicator {
+    opacity: 1;
+    visibility: visible;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    color: #5a5a5a;
+    font-size: 14px;
+}
+
+input[type="date"]::placeholder {
+    color: #999;
+}
+
+input[type="date"]:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+}
 .form-actions {
     display: flex;
     justify-content: center;
