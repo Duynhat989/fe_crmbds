@@ -45,11 +45,19 @@ const isFeatureSelected = (feature) => {
 };
 
 const toggleFeature = (feature) => {
-    const index = packageData.value.features.findIndex(f => f.id === feature.id)
+    if (typeof packageData.value.features === "string") {
+        packageData.value.features = JSON.parse(packageData.value.features);
+    }
+    const index = packageData.value.features.findIndex(f => f.id === feature.id);
+
     if (index === -1) {
-        packageData.value.features.push({ type: feature.type, id: feature.id, name: feature.name });
+        packageData.value.features.push({ 
+            type: feature.type, 
+            id: feature.id, 
+            name: feature.name 
+        });
     } else {
-        packageData.value.features.splice(index, 1)
+        packageData.value.features.splice(index, 1);
     }
 };
 
@@ -60,12 +68,12 @@ watch(
             const features = Array.isArray(newPackage.features)
                 ? newPackage.features
                 : JSON.parse(newPackage.features || '[]');
-            const newPackageUp = {
-                ...newPackage,
-                features: []
+            packageData.value  = {
+                ...newPackage
             };
-            packageData.value = newPackageUp;
+          
             listFeatures.value =  features;
+            console.log(packageData.value);
             fetchCourses();
             fetchAssistants();
         } else {

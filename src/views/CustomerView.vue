@@ -16,6 +16,23 @@ const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const total = ref(0);
 
+
+const selectedRole = ref('');
+const selectedPackage = ref('');
+const expirationStatus = ref('');
+const packages = ref([]);
+
+const fetchPackages = async () => {
+    try {
+        const response = await request.get(END_POINT.PACKAGES_LIST)
+        if (response.success) {
+            packages.value = response.packages
+        }
+    } catch (error) {
+        console.error('Không thể tải danh sách gói cước:', error)
+    }
+}
+
 const openPopup = (user = null, edit = false) => {
   selectedUser.value = user
   isEdit.value = edit
@@ -111,6 +128,7 @@ watch(
 );
 
 onMounted(() => {
+  fetchPackages();
   fetchUsers();
 });
 
@@ -128,6 +146,22 @@ onMounted(() => {
             <i class='bx bx-search-alt-2 search-icon'></i>
             <input type="text" v-model="searchQuery" placeholder="Nhập tìm kiếm người dùng..." class="search-input" />
         </div>
+        <div class="filter-row">
+        <select v-model="selectedRole" class="filter-select">
+          <option value="">Tất cả quyền</option>
+          <option value="1">Quản trị viên</option>
+          <option value="0">Người dùng</option>
+        </select>
+        <select v-model="selectedPackage" class="filter-select">
+          <option value="">Tất cả gói cước</option>
+          <option v-for="pack in packages" :key="pack.id" :value="pack.name">{{ pack.name }}</option>
+        </select>
+        <select v-model="expirationStatus" class="filter-select">
+          <option value="">Tất cả trạng thái</option>
+          <option value="expired">Hết hạn</option>
+          <option value="active">Còn hiệu lực</option>
+        </select>
+      </div>
     </div>
     <div class="main-content">
       <table class="table" style="border: 1px solid rgba(128, 128, 128, 0.288);;padding: 10px;">
@@ -162,7 +196,7 @@ onMounted(() => {
       <PaginationView :total="total" :itemsPerPage="itemsPerPage" :currentPage="currentPage"
       @changePage="changePage" />
     </div>
-    <UserPopup v-if="showPopup" :user="selectedUser" :isEdit="isEdit" @close="closePopup" @saved="fetchUsers" />
+    <UserPopup v-if="showPopup" :packs="packages" :user="selectedUser" :isEdit="isEdit" @close="closePopup" @saved="fetchUsers" />
   </div>
 
 </template>
@@ -185,7 +219,7 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
     width: 60%;
     margin: 0 auto;
     margin-bottom: 20px;
@@ -222,6 +256,47 @@ onMounted(() => {
 .search-input::placeholder {
     color: #aaa;
     font-size: 14px;
+}
+.filter-select {
+  width: 200px;
+  padding: 8px 10px; 
+  margin-right: 10px; 
+  border: 1px solid #ccc;
+  border-radius: 5px; 
+  font-size: 14px;
+  color: #333; 
+  background-color: #fff;
+  appearance: none; 
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+.filter-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); 
+  outline: none; 
+}
+
+.filter-select::placeholder {
+  color: #aaa;
+}
+
+.filter-row {
+  display: flex; 
+  align-items: center;
+  gap: 10px; 
+  margin-top: 10px; 
+}
+
+.filter-select option {
+  font-size: 14px;
+  color: #333;
+  background-color: #fff; 
 }
 .main-container {
   /* max-width: 1100px; */

@@ -18,34 +18,32 @@ const userData = ref({
 })
 const props = defineProps({
     user: Object,
+    packs: Array,
     isEdit: Boolean,
     showPopup: Boolean
 })
 
 const emit = defineEmits(['close', 'saved'])
+watch(
+  () => props.user,
+  (newUser) => {
+    if (newUser) {
+      userData.value = { ...newUser };
+    }
+  },
+  { immediate: true }
+);
 
 watch(
-    () => props.user,
-    (newUser) => {
-        if (newUser) userData.value = { ...newUser }
-    },
-    { immediate: true }
-)
-
-const fetchPackages = async () => {
-    try {
-        const response = await request.get(END_POINT.PACKAGES_LIST)
-        if (response.success) {
-            packages.value = response.packages
-            const selectedPackage = packages.value.find(item => item.name === license.value.pack.name)
-            if (selectedPackage) {
-                userData.value.license = selectedPackage.id
-            }
-        }
-    } catch (error) {
-        console.error('Không thể tải danh sách gói cước:', error)
+  () => props.packs,
+  (newPackages) => {
+    if (newPackages) {
+        packages.value = JSON.parse(JSON.stringify(newPackages));
     }
-}
+  },
+  { immediate: true }
+);
+
 const fetchLicenses = async () => {
     try {
         const response = await request.post(END_POINT.LICENSE_FIND, {
@@ -55,13 +53,19 @@ const fetchLicenses = async () => {
             license.value = response.license
             licenseDate.value = format(new Date(license.value.date), "yyyy-MM-dd");
         }
+        const selectedPackage = packages.value.find(
+             (item) => item.name === license.value.pack.name
+        );
+        if (selectedPackage) {
+            userData.value.license = selectedPackage.id;
+        }
     } catch (error) {
         console.error('Không thể tải danh sách gói cước:', error)
     }
 }
 const loadUser = async () => {
     await fetchLicenses();
-    await fetchPackages();
+    // await fetchPackages();
 };
 onMounted(() => {
     loadUser()
