@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted ,watch} from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { END_POINT } from '@/api/api';
 import request from '@/utils/request';
 import UserPopup from '@/components/UserPopup.vue';
@@ -17,20 +17,18 @@ const itemsPerPage = ref(10);
 const total = ref(0);
 
 
-const selectedRole = ref('');
-const selectedPackage = ref('');
-const expirationStatus = ref('');
+const selectedDateTime = ref('');
 const packages = ref([]);
 
 const fetchPackages = async () => {
-    try {
-        const response = await request.get(END_POINT.PACKAGES_LIST)
-        if (response.success) {
-            packages.value = response.packages
-        }
-    } catch (error) {
-        console.error('Không thể tải danh sách gói cước:', error)
+  try {
+    const response = await request.get(END_POINT.PACKAGES_LIST)
+    if (response.success) {
+      packages.value = response.packages
     }
+  } catch (error) {
+    console.error('Không thể tải danh sách gói cước:', error)
+  }
 }
 
 const openPopup = (user = null, edit = false) => {
@@ -86,13 +84,14 @@ const fetchLicenses = async (userId) => {
     return null;
   }
 };
-const fetchUsers = async (page = 1, limit = 10, search = searchQuery.value) => {
+const fetchUsers = async (page = 1, limit = 10, search = searchQuery.value, date = selectedDateTime.value) => {
   try {
     const response = await request.get(END_POINT.USER_LIST, {
       params: {
         search,
         page,
-        limit
+        limit,
+        date
       }
     });
     users.value = response.data;
@@ -118,11 +117,11 @@ const changePage = (page) => {
 };
 let timeout;
 watch(
-  searchQuery,
-  (newQuery) => {
+  [searchQuery, selectedDateTime], 
+  ([newQuery, newDate]) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
-      fetchUsers(currentPage.value, itemsPerPage.value, newQuery);
+      fetchUsers(currentPage.value, itemsPerPage.value, newQuery, newDate);
     }, 2000);
   }
 );
@@ -142,27 +141,21 @@ onMounted(() => {
       <h1 class="title">Danh sách người dùng</h1>
     </div>
     <div class="search-bar">
-        <div class="search-row">
-            <i class='bx bx-search-alt-2 search-icon'></i>
-            <input type="text" v-model="searchQuery" placeholder="Nhập tìm kiếm người dùng..." class="search-input" />
-        </div>
-        <div class="filter-row">
-        <select v-model="selectedRole" class="filter-select">
-          <option value="">Tất cả quyền</option>
-          <option value="1">Quản trị viên</option>
-          <option value="0">Người dùng</option>
-        </select>
-        <select v-model="selectedPackage" class="filter-select">
-          <option value="">Tất cả gói cước</option>
-          <option v-for="pack in packages" :key="pack.id" :value="pack.name">{{ pack.name }}</option>
-        </select>
-        <select v-model="expirationStatus" class="filter-select">
-          <option value="">Tất cả trạng thái</option>
-          <option value="expired">Hết hạn</option>
-          <option value="active">Còn hiệu lực</option>
-        </select>
+      <div class="search-row">
+        <i class='bx bx-search-alt-2 search-icon'></i>
+        <input type="text" v-model="searchQuery" placeholder="Nhập tìm kiếm người dùng..." class="search-input" />
+      </div>
+      <div class="filter-row">
+        <input 
+          type="date" 
+          id="expirationDate" 
+          v-model="selectedDateTime" 
+          class="filter-date" 
+          aria-label="Chọn ngày và giờ" 
+        />
       </div>
     </div>
+
     <div class="main-content">
       <table class="table" style="border: 1px solid rgba(128, 128, 128, 0.288);;padding: 10px;">
         <thead>
@@ -193,10 +186,10 @@ onMounted(() => {
           </tr>
         </tbody>
       </table>
-      <PaginationView :total="total" :itemsPerPage="itemsPerPage" :currentPage="currentPage"
-      @changePage="changePage" />
+      <PaginationView :total="total" :itemsPerPage="itemsPerPage" :currentPage="currentPage" @changePage="changePage" />
     </div>
-    <UserPopup v-if="showPopup" :packs="packages" :user="selectedUser" :isEdit="isEdit" @close="closePopup" @saved="fetchUsers" />
+    <UserPopup v-if="showPopup" :packs="packages" :user="selectedUser" :isEdit="isEdit" @close="closePopup"
+      @saved="fetchUsers" />
   </div>
 
 </template>
@@ -216,87 +209,78 @@ onMounted(() => {
 }
 
 .search-bar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    width: 60%;
-    margin: 0 auto;
-    margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  width: 60%;
+  margin: 0 auto;
+  margin-bottom: 20px;
 }
+
 .search-row {
-    position: relative;
-    width: 100%;
+  position: relative;
+  width: 100%;
+}
+.filter-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .search-icon {
-    position: absolute;
-    top: 50%;
-    left: 15px;
-    transform: translateY(-50%);
-    font-size: 16px;
-    color: #aaa;
-    pointer-events: none;
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #aaa;
+  pointer-events: none;
 }
+
 .search-input {
-    width: 100%;
-    padding: 10px 20px 10px 40px;
-    border: 2px solid #fff;
-    border-radius: 25px;
-    font-size: 16px;
-    outline: none;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  padding: 10px 20px 10px 40px;
+  border: 2px solid #fff;
+  border-radius: 25px;
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
 .search-input:focus {
-    border-color: #4a90e2;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border-color: #4a90e2;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .search-input::placeholder {
-    color: #aaa;
-    font-size: 14px;
-}
-.filter-select {
-  width: 200px;
-  padding: 8px 10px; 
-  margin-right: 10px; 
-  border: 1px solid #ccc;
-  border-radius: 5px; 
-  font-size: 14px;
-  color: #333; 
-  background-color: #fff;
-  appearance: none; 
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
-}
-
-.filter-select:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); 
-  outline: none; 
-}
-
-.filter-select::placeholder {
   color: #aaa;
-}
-
-.filter-row {
-  display: flex; 
-  align-items: center;
-  gap: 10px; 
-  margin-top: 10px; 
-}
-
-.filter-select option {
   font-size: 14px;
-  color: #333;
-  background-color: #fff; 
+}
+
+
+.date-filter label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.filter-date {
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 2px solid #fff;
+  border-radius: 25px;
+  font-size: 1rem;
+  min-width: 200px;
+  cursor: pointer;
+}
+.filter-date:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
+}
+.filter-date:hover {
+  border-color: #007bff;
 }
 .main-container {
   /* max-width: 1100px; */
