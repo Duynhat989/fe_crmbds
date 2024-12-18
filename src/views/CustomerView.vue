@@ -117,12 +117,12 @@ const changePage = (page) => {
 };
 let timeout;
 watch(
-  [searchQuery, selectedDateTime], 
+  [searchQuery, selectedDateTime],
   ([newQuery, newDate]) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       fetchUsers(currentPage.value, itemsPerPage.value, newQuery, newDate);
-    }, 2000);
+    }, 500);
   }
 );
 
@@ -146,13 +146,9 @@ onMounted(() => {
         <input type="text" v-model="searchQuery" placeholder="Nhập tìm kiếm người dùng..." class="search-input" />
       </div>
       <div class="filter-row">
-        <input 
-          type="date" 
-          id="expirationDate" 
-          v-model="selectedDateTime" 
-          class="filter-date" 
-          aria-label="Chọn ngày và giờ" 
-        />
+        <label for="expirationDate" class="filter-label">Ngày sắp hết hạn:</label>
+        <input type="date" id="expirationDate" v-model="selectedDateTime" class="filter-date"
+          aria-label="Chọn ngày và giờ" />
       </div>
     </div>
 
@@ -198,7 +194,7 @@ onMounted(() => {
 .header-title {
   text-align: center;
   margin-top: 40px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .header-title .title {
@@ -210,23 +206,25 @@ onMounted(() => {
 
 .search-bar {
   display: flex;
-  align-items: center;
-  flex-direction: column;
+  align-items: flex-end;
+  flex-direction: row;
   gap: 10px;
   width: 60%;
   margin: 0 auto;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .search-row {
   position: relative;
   width: 100%;
 }
+
 .filter-row {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
 .search-icon {
   position: absolute;
   top: 50%;
@@ -274,14 +272,17 @@ onMounted(() => {
   min-width: 200px;
   cursor: pointer;
 }
+
 .filter-date:focus {
   border-color: #007bff;
   outline: none;
   box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
 }
+
 .filter-date:hover {
   border-color: #007bff;
 }
+
 .main-container {
   /* max-width: 1100px; */
   margin: 40px auto;

@@ -20,24 +20,20 @@ const packageData = ref({
     description: '',
     price: 0,
     features: [],
-    requests: 0
+    ask: 0
 })
 
-const fetchCourses = async () => {
-  try {
-    const response = await request.get(END_POINT.COURSES_LIST);
-    courses.value = response.courses;
-  } catch (error) {
-    console.error('Lỗi lấy danh sách khóa học:', error);
-  }
-};
-const fetchAssistants = async () => {
-  try {
-    const response = await request.get(END_POINT.ASSISTANTS_LIST);
-    assistants.value = response.data;
-  } catch (error) {
-    console.error('Lỗi lấy danh sách trợ lý:', error);
-  }
+const fetchData = async () => {
+    try {
+        const [coursesResponse, assistantsResponse] = await Promise.all([
+            request.get(`${END_POINT.COURSES_LIST}?limit=1000`),
+            request.get(`${END_POINT.ASSISTANTS_LIST}?limit=1000`)
+        ]);
+        courses.value = coursesResponse.courses || [];
+        assistants.value = assistantsResponse.data || [];
+    } catch (error) {
+        console.error('Lỗi lấy dữ liệu:', error);
+    }
 };
 
 const isFeatureSelected = (feature) => {
@@ -45,16 +41,20 @@ const isFeatureSelected = (feature) => {
 };
 
 const toggleFeature = (feature) => {
-    if (typeof packageData.value.features === "string") {
-        packageData.value.features = JSON.parse(packageData.value.features);
+    if (!Array.isArray(packageData.value.features)) {
+        try {
+            packageData.value.features = JSON.parse(packageData.value.features || '[]');
+        } catch (error) {
+            packageData.value.features = [];
+        }
     }
-    const index = packageData.value.features.findIndex(f => f.id === feature.id);
 
+    const index = packageData.value.features.findIndex(f => f.id === feature.id && f.type === feature.type);
     if (index === -1) {
-        packageData.value.features.push({ 
-            type: feature.type, 
-            id: feature.id, 
-            name: feature.name 
+        packageData.value.features.push({
+            type: feature.type,
+            id: feature.id,
+            name: feature.name
         });
     } else {
         packageData.value.features.splice(index, 1);
@@ -63,19 +63,32 @@ const toggleFeature = (feature) => {
 
 watch(
     () => props.package,
-    (newPackage) => {
+    async  (newPackage) => {
         if (newPackage) {
             const features = Array.isArray(newPackage.features)
                 ? newPackage.features
                 : JSON.parse(newPackage.features || '[]');
-            packageData.value  = {
-                ...newPackage
+            packageData.value = {
+                id: newPackage.id || null,
+                name: newPackage.name || '',
+                description: newPackage.description || '',
+                price: newPackage.price || 0,
+                features: [], 
+                ask: newPackage.ask || 0
             };
-          
-            listFeatures.value =  features;
-            console.log(packageData.value);
-            fetchCourses();
-            fetchAssistants();
+            listFeatures.value = features;
+            
+            await fetchData();
+
+            features.forEach((feature) => {
+                if (feature.type === 'course') {
+                    const course = courses.value.find(c => c.id === feature.id);
+                    if (course) packageData.value.features.push(feature);
+                } else if (feature.type === 'assistant') {
+                    const assistant = assistants.value.find(a => a.id === feature.id);
+                    if (assistant) packageData.value.features.push(feature);
+                }
+            });
         } else {
             packageData.value = {
                 id: null,
@@ -83,8 +96,8 @@ watch(
                 description: '',
                 price: 0,
                 features: [],
-                requests: 0
-            }
+                ask: 0
+            };
             listFeatures.value = [];
         }
     },
@@ -158,14 +171,14 @@ const submitForm = async () => {
                 <div class="form-group feature">
                     <label>Tính năng khóa học:</label>
                     <div v-for="course in courses" :key="'course-' + course.id" class="checkbox-item">
-                        <input type="checkbox" :id="'course-' + course.id" :value="course"
+                        <input type="checkbox" :id="'course-' + course.id" :value="course.id"
                                :checked="isFeatureSelected({ type: 'course', id: course.id , name: course.name })"
                                @change="toggleFeature({ type: 'course', id: course.id,  name: course.name })">
                         <label :for="'course-' + course.id">{{ course.name }}</label>
                     </div>
                     <label>Tính năng trợ lý:</label>
                     <div v-for="assistant in assistants" :key="'assistant-' + assistant.id" class="checkbox-item">
-                        <input type="checkbox" :id="'assistant-' + assistant.id" :value="assistant"
+                        <input type="checkbox" :id="'assistant-' + assistant.id" :value="assistant.id"
                                :checked="isFeatureSelected({ type: 'assistant', id: assistant.id , name: assistant.name })"
                                @change="toggleFeature({ type: 'assistant', id: assistant.id , name: assistant.name })">
                         <label :for="'assistant-' + assistant.id">{{ assistant.name }}</label>

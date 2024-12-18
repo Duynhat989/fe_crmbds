@@ -14,6 +14,7 @@ const assistantData = ref({
     instructions: '',
     file_ids: [],
     suggests: [''],
+    name_model: 'gpt-4o-mini',
 });
 
 
@@ -25,6 +26,7 @@ const fetchAssistantFind = async () => {
                 ...response.data,
                 file_ids: JSON.parse(response.data.file_ids),
                 suggests: JSON.parse(response.data.suggests),
+
             };
         }
     } catch (error) {
@@ -49,6 +51,7 @@ function getDefaultAssistantData() {
         instructions: '',
         file_ids: [],
         suggests: [''],
+        name_model: 'gpt-4o-mini',
     };
 }
 const closePopup = () => {
@@ -111,45 +114,10 @@ const uploadFile = async (file) => {
         return null;
     }
 };
-// const deleteFile = async (fileId) => {
-//     try {
-//         await request.delete(END_POINT.FILE_DELETE(fileId));
-//     } catch (error) {
-//         console.error("File deletion error:", error);
-//         notify({
-//             title: 'Lỗi',
-//             text: 'Xóa file thất bại, vui lòng thử lại sau.',
-//             type: 'error'
-//         });
-//         return false;
-//     }
-// };
-
 
 const removeFile = async (index) => {
-    // const fileId = assistantData.value.file_ids[index];
-    // console.log(index,fileId);
-    // if (fileId) {
-    //     const response = await deleteFile(fileId);
-    //     console.log(response)
-    //     if (response.success) {
-    //         assistantData.value.file_ids.splice(index, 1);
-    //         notify({
-    //             title: 'Thành công',
-    //             text: 'Xóa file Thành công',
-    //             type: 'success'
-    //         });
-    //     }else{
-    //         assistantData.value.file_ids.splice(index, 1);
-    //         pendingFiles.value.splice(index, 1);
-    //     }
-    //     console.log(assistantData.value,pendingFiles.value);
-    // } else {
     assistantData.value.file_ids.splice(index, 1);
     pendingFiles.value.splice(index, 1);
-    // }
-    // console.log('pending',pendingFiles.value,assistantData.value)
-
 };
 const submitForm = async () => {
     for (let i = 0; i < pendingFiles.value.length; i++) {
@@ -209,6 +177,12 @@ onMounted(() => {
     }
     fetchAssistantFind();
 });
+
+const modelOptions = [
+    'gpt-4o',
+    'gpt-4o-mini',
+];
+
 </script>
 <template>
     <div class="popup-overlay">
@@ -220,10 +194,17 @@ onMounted(() => {
                 <div class="form-row">
                     <div class="form-column">
                         <div class="form-group">
+                            <label for="model">Chọn Model ChatGPT:</label>
+                            <select id="model" v-model="assistantData.name_model" required>
+                                <option v-for="model in modelOptions" :key="model" :value="model">
+                                    {{ model }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label for="name">Tên Trợ Lý:</label>
                             <input type="text" id="name" placeholder="Nhập tên trợ lý" v-model="assistantData.name" required />
                         </div>
-
                         <div class="form-group">
                             <label for="detail">Chi tiết:</label>
                             <textarea id="detail" placeholder="Nhập chi tiết"  v-model="assistantData.detail" required></textarea>
@@ -441,4 +422,35 @@ form {
     border-radius: 8px;
     object-fit: cover;
 }
+form .form-group {
+  margin-bottom: 15px;
+}
+
+form .form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+form .form-group select {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+form .form-group select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+  outline: none;
+}
+
+form .form-group select:hover {
+  border-color: #007bff;
+}
+
 </style>
