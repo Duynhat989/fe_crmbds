@@ -20,7 +20,7 @@ const isEdit = ref(false)
 
 // const showUserPopup = ref(false);
 const selectedUserId = ref(null);
-const selectedStatus = ref('');
+const selectedStatus = ref(2);
 const startday = ref(''); 
 const endday = ref(''); 
 
@@ -220,7 +220,7 @@ onMounted(() => {
                         <td>{{ formatCurrency(pay.must_pay) }}</td>
                         <!-- <td v-html="getFeatureNames(pay.package.features)"></td> -->
                         <td>{{ pay.package.ask }}</td>
-                        <td>{{ pay.user.name }}</td>
+                        <td>{{ pay.user ? pay.user.name : '' }}</td>
                         <td style="text-align: center;">
                             <span :class="`status ${getStatusClassAndText(pay.status_pay).class}`"> {{ getStatusClassAndText(pay.status_pay).text }}</span>
                         </td>
