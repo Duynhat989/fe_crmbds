@@ -19,7 +19,7 @@ const total = ref(0);
 
 const selectedDateTime = ref('');
 const packages = ref([]);
-
+const selectedPackage = ref('');
 const fetchPackages = async () => {
   try {
     const response = await request.get(END_POINT.PACKAGES_LIST)
@@ -84,14 +84,15 @@ const fetchLicenses = async (userId) => {
     return null;
   }
 };
-const fetchUsers = async (page = 1, limit = 10, search = searchQuery.value, date = selectedDateTime.value) => {
+const fetchUsers = async (page = 1, limit = 10, search = searchQuery.value, date = selectedDateTime.value, pack= selectedPackage.value) => {
   try {
     const response = await request.get(END_POINT.USER_LIST, {
       params: {
         search,
         page,
         limit,
-        date
+        date,
+        pack
       }
     });
     users.value = response.data;
@@ -117,11 +118,11 @@ const changePage = (page) => {
 };
 let timeout;
 watch(
-  [searchQuery, selectedDateTime],
-  ([newQuery, newDate]) => {
+  [searchQuery, selectedDateTime,selectedPackage],
+  ([newQuery, newDate,newPackage]) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
-      fetchUsers(currentPage.value, itemsPerPage.value, newQuery, newDate);
+      fetchUsers(currentPage.value, itemsPerPage.value, newQuery, newDate, newPackage);
     }, 500);
   }
 );
@@ -146,10 +147,19 @@ onMounted(() => {
         <input type="text" v-model="searchQuery" placeholder="Nhập tìm kiếm người dùng..." class="search-input" />
       </div>
       <div class="filter-row">
+        <label for="packageFilter" class="filter-label">Gói cước:</label>
+        <select id="packageFilter" v-model="selectedPackage" class="filter-select">
+          <option value="">Tất cả</option>
+          <option v-for="pack in packages" :key="pack.id" :value="pack.id">
+            {{ pack.name }}
+          </option>
+        </select>
+      </div>
+      <div class="filter-row">
         <label for="expirationDate" class="filter-label">Ngày sắp hết hạn:</label>
         <input type="date" id="expirationDate" v-model="selectedDateTime" class="filter-date"
           aria-label="Chọn ngày và giờ" />
-      </div>
+        </div>
     </div>
 
     <div class="main-content">
@@ -225,6 +235,32 @@ onMounted(() => {
   align-items: center;
 }
 
+.filter-label {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border-radius: 25px;
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.25);
+}
+
+.filter-select option {
+  color: #333;
+  background-color: #fff;
+  padding: 5px;
+}
 .search-icon {
   position: absolute;
   top: 50%;

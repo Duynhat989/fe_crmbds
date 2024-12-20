@@ -227,21 +227,26 @@ const modelOptions = [
                     <div class="form-column">
                         <div class="form-group">
                             <label>Đề xuất tin nhắn:</label>
-                            <div v-for="(suggest, index) in assistantData.suggests" :key="index" class="suggest-item">
-                                <input type="text" v-model="assistantData.suggests[index]" placeholder="Tin nhắn" />
-                                <button type="button" @click="removeSuggestion(index)" class="remove-btn">Xóa</button>
+                            <div class="suggest-list">
+                                <div v-for="(suggest, index) in assistantData.suggests" :key="index" class="suggest-item">
+                                    <input type="text" v-model="assistantData.suggests[index]" placeholder="Tin nhắn" />
+                                    <button type="button" @click="removeSuggestion(index)" class="remove-btn">Xóa</button>
+                                </div>
                             </div>
                             <button type="button" @click="addSuggestion" class="add-btn">+ Thêm đề xuất</button>
                         </div>
 
                         <div class="form-group">
                             <label>Tải lên file:</label>
-                            <div v-for="(file, index) in assistantData.file_ids" :key="index" class="file-item">
-                                <input type="file" @change="handleFileChange($event, index)"
-                                    accept=".pdf, .doc, .docx, .xls, .xlsx" />
-                                <span>{{ file }}</span>
-                                <button type="button" @click="removeFile(index)" class="remove-btn">Xóa</button>
+                            <div class="file-list">
+                                <div v-for="(file, index) in assistantData.file_ids" :key="index" class="file-item">
+                                    <input type="file" @change="handleFileChange($event, index)"
+                                        accept=".pdf, .doc, .docx, .xls, .xlsx" />
+                                    <span>{{ file }}</span>
+                                    <button type="button" @click="removeFile(index)" class="remove-btn">Xóa</button>
+                                </div>
                             </div>
+
                             <button type="button" @click="addFileInput" class="add-btn">+ Thêm file</button>
                         </div>
                     </div>
@@ -452,5 +457,10 @@ form .form-group select:focus {
 form .form-group select:hover {
   border-color: #007bff;
 }
-
+.suggest-list,
+.file-list {
+    max-height: 250px;
+    overflow: auto;
+    padding-right: 10px;
+}
 </style>

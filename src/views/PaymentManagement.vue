@@ -207,7 +207,7 @@ onMounted(() => {
                         <th>Giá tiền</th>
                         <th>Lượt yêu cầu</th>
                         <th>Người dùng</th>
-                        <!-- <th>Thời gian</th> -->
+                        <th>SĐT</th>
                         <th>Trạng thái</th>
                         <th style="width: 150px;">Hành động</th>
                     </tr>
@@ -220,7 +220,8 @@ onMounted(() => {
                         <td>{{ formatCurrency(pay.must_pay) }}</td>
                         <!-- <td v-html="getFeatureNames(pay.package.features)"></td> -->
                         <td>{{ pay.package.ask }}</td>
-                        <td>{{ pay.user.name }}</td>
+                        <td>{{ pay?.user?.name }}</td>
+                        <td>{{ pay?.user?.phone }}</td>
                         <td style="text-align: center;">
                             <span :class="`status ${getStatusClassAndText(pay.status_pay).class}`"> {{ getStatusClassAndText(pay.status_pay).text }}</span>
                         </td>
