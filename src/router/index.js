@@ -9,6 +9,7 @@ import CourseView from '@/views/CourseView.vue';
 import SetupView from '@/views/SetupView.vue';
 import PackageView from '@/views/PackageView.vue';
 import PaymentManagement from '@/views/PaymentManagement.vue';
+import DashboardView from '@/views/DashboardView.vue';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -18,11 +19,17 @@ const router = createRouter({
       component: HomeView,
       beforeEnter: (to, from, next) => {
         if (store.getters.isLogin) {
-          next('/assistant');
+          next('/dashboard');
         } else {
           next(); 
         }
       }
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: DashboardView ,
+      meta: { requiresAuth: true } 
     },
     {
       path: '/customer',

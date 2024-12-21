@@ -78,4 +78,9 @@ export const END_POINT = {
   ESTALE_UPDATE: '/api/estale/update', // Cập nhật bài viết bất động sản
   ESTALE_CREATE: '/api/estale/create', // Cập nhật bài viết bất động sản
   ESTALE_DELETE: '/api/estale/delete', // Xóa bài viết bất động sản
+
+  REPOST_USERS: '/api/report/users',
+  REPOST_REVENUE: '/api/report/revenue',
+  REPOST_USER_NEW: '/api/report/user-new',
+
 };

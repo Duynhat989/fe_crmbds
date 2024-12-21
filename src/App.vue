@@ -56,6 +56,12 @@ const handleLogOut = async (event) => {
           </div>
         </div>
         <ul class="menu">
+          <li :class="{ active: currentRoute === '/dashboard' }" class="menu_item">
+            <a href="/dashboard" class="button">
+              <i class='bx bxs-bar-chart-alt-2'></i>
+              <span>Thống kê báo cáo</span>
+            </a>
+          </li>
           <li :class="{ active: currentRoute === '/customer' }" class="menu_item">
             <a href="/customer" class="button"><i class='bx bxs-user-account'></i> <span>Quản lý khách hàng</span></a>
           </li>

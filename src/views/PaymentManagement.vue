@@ -23,7 +23,7 @@ const selectedUserId = ref(null);
 const selectedStatus = ref(2);
 const startday = ref(''); 
 const endday = ref(''); 
-
+const totalMustPay = ref(0);
 // const addNewPayment = () => {
 //   showPopup.value = true;
 //   isEdit.value = false
@@ -94,6 +94,7 @@ const fetchPayments = async () => {
         const response = await request.get(`${END_POINT.PAYMENTS_LIST}?${queryParams}`, {});
 
         payments.value = response.pays;
+        totalMustPay.value = response.totalMustPay;
         total.value = response.total;
         currentPage.value = response.page;
         itemsPerPage.value = response.limit;
@@ -202,6 +203,7 @@ onMounted(() => {
                 <thead>
                     <tr>
                         <th>Số thứ tự</th>
+                        <th>Mã hóa đơn</th>
                         <th>Tên gói cước</th>
                         <th>Mô tả gói cước</th>
                         <th>Giá tiền</th>
@@ -215,14 +217,14 @@ onMounted(() => {
                 <tbody>
                     <tr v-for="(pay, index) in payments" :key="pay.id">
                         <td style="text-align: center;">{{ index + 1 }}</td>
+                        <td style="text-align: center;">{{ pay.invoice_code }}</td>
                         <td style="max-width: 200px;">{{ pay.package.name }}</td>
                         <td>{{ pay.package.description }}</td>
                         <td>{{ formatCurrency(pay.must_pay) }}</td>
                         <!-- <td v-html="getFeatureNames(pay.package.features)"></td> -->
                         <td>{{ pay.package.ask }}</td>
-                        <td>{{ pay?.user?.name }}</td>
-                        <td>{{ pay?.user?.phone }}</td>
                         <td>{{ pay.user ? pay.user.name : '' }}</td>
+                        <td>{{ pay?.user?.phone }}</td>
                         <td style="text-align: center;">
                             <span :class="`status ${getStatusClassAndText(pay.status_pay).class}`"> {{ getStatusClassAndText(pay.status_pay).text }}</span>
                         </td>
@@ -234,6 +236,12 @@ onMounted(() => {
                         </td>
                     </tr>
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" style="text-align: right; font-weight: bold;">Tổng tiền:</td>
+                        <td colspan="6" style="text-align: left; font-weight: bold;">{{ formatCurrency(totalMustPay) }}</td>
+                    </tr>
+                </tfoot>
             </table>
             <PaginationView :total="total" :itemsPerPage="itemsPerPage" :currentPage="currentPage"
             @changePage="changePage" />
