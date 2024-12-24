@@ -5,6 +5,26 @@ import request from '@/utils/request';
 import UserPopup from '@/components/UserPopup.vue';
 import PaginationView from '@/components/Pagination.vue';
 
+import * as XLSX from "xlsx";
+
+const exportToExcel = () => {
+  const data = users.value.map((user, index) => ({
+    "Số thứ tự": index + 1,
+    "Tên người dùng": user.name,
+    "Số điện thoại": user.phone,
+    "Email": user.email,
+    "Quyền": user.role == 1 ? "Quản trị viên" : "Người dùng",
+    "Gói cước": user.license?.pack?.name || "Không có",
+    "Ngày hết hạn": user.license?.date || "Không có",
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(data);
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách người dùng");
+
+  XLSX.writeFile(workbook, "Danh_sach_nguoi_dung.xlsx");
+};
 const searchQuery = ref('');
 
 const users = ref([]);
@@ -84,7 +104,7 @@ const fetchLicenses = async (userId) => {
     return null;
   }
 };
-const fetchUsers = async (page = 1, limit = 10, search = searchQuery.value, date = selectedDateTime.value, pack= selectedPackage.value) => {
+const fetchUsers = async (page = 1, limit = 10, search = searchQuery.value, date = selectedDateTime.value, pack = selectedPackage.value) => {
   try {
     const response = await request.get(END_POINT.USER_LIST, {
       params: {
@@ -118,8 +138,8 @@ const changePage = (page) => {
 };
 let timeout;
 watch(
-  [searchQuery, selectedDateTime,selectedPackage],
-  ([newQuery, newDate,newPackage]) => {
+  [searchQuery, selectedDateTime, selectedPackage],
+  ([newQuery, newDate, newPackage]) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       fetchUsers(currentPage.value, itemsPerPage.value, newQuery, newDate, newPackage);
@@ -147,19 +167,27 @@ onMounted(() => {
         <input type="text" v-model="searchQuery" placeholder="Nhập tìm kiếm người dùng..." class="search-input" />
       </div>
       <div class="filter-row">
-        <label for="packageFilter" class="filter-label">Gói cước:</label>
-        <select id="packageFilter" v-model="selectedPackage" class="filter-select">
-          <option value="">Tất cả</option>
-          <option v-for="pack in packages" :key="pack.id" :value="pack.id">
-            {{ pack.name }}
-          </option>
-        </select>
-      </div>
-      <div class="filter-row">
+        <div class="filter-column">
+          <label for="packageFilter" class="filter-label">Gói cước:</label>
+          <select id="packageFilter" v-model="selectedPackage" class="filter-select">
+            <option value="">Tất cả</option>
+            <option v-for="pack in packages" :key="pack.id" :value="pack.id">
+              {{ pack.name }}
+            </option>
+          </select>
+        </div>
+      <div class="filter-column">
         <label for="expirationDate" class="filter-label">Ngày sắp hết hạn:</label>
         <input type="date" id="expirationDate" v-model="selectedDateTime" class="filter-date"
           aria-label="Chọn ngày và giờ" />
-        </div>
+      </div>
+      <div class="filter-column">
+        <label  class="filter-label">&nbsp;</label>
+        <button class="button export-button" @click="exportToExcel">
+          <i class='bx bx-export'></i> Xuất Excel
+        </button>
+      </div>
+      </div>
     </div>
 
     <div class="main-content">
@@ -216,8 +244,9 @@ onMounted(() => {
 
 .search-bar {
   display: flex;
-  align-items: flex-end;
-  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
   gap: 10px;
   width: 60%;
   margin: 0 auto;
@@ -231,10 +260,17 @@ onMounted(() => {
 
 .filter-row {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  gap: 20px;
+  margin-top: 10px;
+  flex-wrap: wrap;
 }
-
+.filter-column {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
 .filter-label {
   font-weight: bold;
   font-size: 14px;
@@ -246,6 +282,7 @@ onMounted(() => {
   border-radius: 25px;
   font-size: 16px;
   outline: none;
+  border: none;
   transition: all 0.3s ease-in-out;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
@@ -261,6 +298,7 @@ onMounted(() => {
   background-color: #fff;
   padding: 5px;
 }
+
 .search-icon {
   position: absolute;
   top: 50%;
@@ -317,6 +355,22 @@ onMounted(() => {
 
 .filter-date:hover {
   border-color: #007bff;
+}
+
+.export-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  height: 40px;
+  width: max-content;
+}
+
+.export-button:hover {
+  object-fit: 0.7;
 }
 
 .main-container {
@@ -462,6 +516,15 @@ tr:hover {
 
   .list-card {
     width: calc((100% - 30px)/2);
+  }
+  
+  .filter-row {
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .search-bar {
+    width: 100%;
   }
 }
 

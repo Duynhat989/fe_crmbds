@@ -349,7 +349,7 @@ onMounted(async () => {
   height: auto;
   /* Đặt chiều cao cố định nhỏ gọn */
   width: 50%;
-
+  margin-bottom: 15px;
 }
 
 .chart-card__news {
@@ -366,7 +366,11 @@ onMounted(async () => {
 }
 
 @media (max-width: 768px) {
-  .card-chart {
+  .charts {
+    flex-direction: column;
+  }
+  .card-chart,
+  .chart-card {
     width: 100%;
   }
 }
