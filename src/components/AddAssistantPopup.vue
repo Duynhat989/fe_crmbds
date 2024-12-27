@@ -286,6 +286,8 @@ const modelOptions = [
     flex-wrap: wrap;
     gap: 1rem;
     position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .popup-container h2 {
