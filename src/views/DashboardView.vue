@@ -257,7 +257,7 @@ onMounted(async () => {
 }
 
 .card-chart {
-  width: 40%;
+  width: 100%;
   padding: 10px 20px;
   display: flex;
   align-items: center;
