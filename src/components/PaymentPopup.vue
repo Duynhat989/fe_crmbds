@@ -7,6 +7,7 @@ import { notify } from '@kyvg/vue3-notification';
 
 const packages = ref({});
 const users  = ref([]);
+const isLoading = ref(false);
 
 const paymentData =  ref({
     user_id: '',
@@ -83,6 +84,8 @@ const closePopup = () => {
 
 const submitForm = async () => {
     try {
+        isLoading.value = true;
+
         const dataToSubmit = {
             ...paymentData.value,
             status_pay: Number(paymentData.value.status_pay),
@@ -105,13 +108,15 @@ const submitForm = async () => {
                 type: 'error'
             });
         }
-        closePopup()
     } catch (error) {
         notify({
             title: 'Lỗi',
             text: 'Cập nhật thanh toán thất bại, vui lòng thử lại sau.',
             type: 'error'
         });
+    }finally {
+        isLoading.value = false;
+        closePopup();
     }
 };
 onMounted(() => {
@@ -177,7 +182,12 @@ onMounted(() => {
                 </div>
 
                 <div class="form-group form-actions">
-                    <button type="submit" class="save-btn">Lưu</button>
+                    <button type="submit" class="save-btn" :disabled="isLoading">
+                        <span v-if="isLoading">
+                            <i class="bx bx-loader bx-spin"></i> Đang lưu...
+                        </span>
+                        <span v-else>Lưu</span>
+                    </button>
                     <button type="button" @click="closePopup" class="cancel-btn">Hủy</button>
                 </div>
             </form>

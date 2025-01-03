@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import request from '@/utils/request'
 import { END_POINT } from '@/api/api'
 import { notify } from '@kyvg/vue3-notification';
+const isLoading = ref(false);
 
 const estateData = ref({
     title: '',
@@ -59,6 +60,7 @@ watch(
 
 const submitForm = async () => {
     try {
+        isLoading.value = true;
         const dataToSubmit = {
             ...estateData.value,
             ...(props.isEdit && { id: props.selectedEstale.id })
@@ -80,6 +82,7 @@ const submitForm = async () => {
             type: 'error'
         });
     } finally {
+        isLoading.value = false;
         closePopup();
     }
 };
@@ -89,7 +92,7 @@ const submitForm = async () => {
     <div class="popup-overlay">
         <div class="popup-container">
             <button class="close-btn" @click="closePopup"><i class="bx bxs-x-circle"></i></button>
-            <h2>{{ isEdit ? "Chỉnh sửa dữ liệu" : "Thêm dữ liệu mới" }}</h2>
+            <h2>{{ isEdit ? "Chỉnh sửa bài viết" : "Thêm bài viết mới" }}</h2>
             <form @submit.prevent="submitForm">
                 <div class="form-grid">
                     <div class="form-group">
@@ -124,7 +127,7 @@ const submitForm = async () => {
                         <label for="keyword">Nhập thông tin Keyword:</label>
                         <textarea id="keyword" v-model="estateData.keyword"></textarea>
                     </div>
-                  
+
                     <div class="form-group">
                         <label for="status">Trạng thái:</label>
                         <select id="status" v-model="estateData.status">
@@ -135,13 +138,19 @@ const submitForm = async () => {
                     </div>
                     <div class="form-group">
                         <label for="image">URL Hình ảnh:</label>
-                        <input type="text" id="image" v-model="estateData.image" /> 
-                        <img style="margin-top: 20px;" width="100" height="100" :src="estateData.image" alt="Hình ảnh">
+                        <input type="text" id="image" v-model="estateData.image" />
+                        <img v-if="estateData.image" style="margin-top: 20px;" width="100" height="100"
+                            :src="estateData.image" alt="Hình ảnh">
                     </div>
                 </div>
                 <div class="popup-actions">
-                    <button type="submit">{{ isEdit ? "Lưu thay đổi" : "Thêm mới" }}</button>
-                    <button type="button" @click="closePopup">Đóng</button>
+                    <button type="submit" class="save-btn" :disabled="isLoading">
+                        <span v-if="isLoading">
+                            <i class="bx bx-loader bx-spin"></i> Đang lưu...
+                        </span>
+                        <span v-else>Lưu</span>
+                    </button>
+                    <button type="button" @click="closePopup" class="cancel-btn">Hủy</button>
                 </div>
             </form>
         </div>
@@ -185,10 +194,13 @@ const submitForm = async () => {
     color: #555;
 }
 
-h2 {
-    margin-top: 0;
+.popup-container h2 {
+    font-size: 24px;
+    color: var(--color-primary);
+    font-weight: bold;
+    margin-bottom: 5px;
+    width: 100%;
     text-align: center;
-    color: #333;
 }
 
 form {
@@ -237,27 +249,31 @@ textarea {
     gap: 20px;
 }
 
-button[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
+.save-btn,
+.cancel-btn {
+    padding: 10px 20px;
+    font-size: 1em;
     border: none;
-    padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
-    font-weight: bold;
+    transition: background-color 0.2s ease-in-out;
 }
 
-button[type="button"] {
-    background-color: var(--color-primary);
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
+.save-btn {
+    background-color: #007bff;
+    color: #fff;
 }
 
-button:hover {
-    opacity: 0.9;
+.save-btn:hover {
+    background-color: #c22c27;
+}
+
+.cancel-btn {
+    background-color: #ccc;
+    color: #333;
+}
+
+.cancel-btn:hover {
+    background-color: #aaa;
 }
 </style>

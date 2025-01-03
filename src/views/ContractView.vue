@@ -124,7 +124,6 @@ onMounted(() => {
             <th>Hình ảnh</th>
             <th>Tên hợp đồng</th>
             <th>Mô tả</th>
-            <th>Mẫu hợp đồng</th>
             <th>Tiêu đề đầu vào</th>
             <th>Trạng thái</th>
             <th style="width: 150px;">Hành động</th>
@@ -136,9 +135,6 @@ onMounted(() => {
             <td><img :src="item.image" alt="Contract Image" style="width: 50px; height: auto;" /></td>
             <td>{{ item.name }}</td>
             <td>{{ item.description }}</td>
-            <td>
-              <a  v-if="item.template_contract" :href="item.template_contract">Tải hợp đồng</a>
-            </td>
             <td v-html="getInputNames(item.input)"></td>
             <td>{{ item.status === 1 ? 'Hoạt động' : 'Ngừng' }}</td>
             <td class="table-button">

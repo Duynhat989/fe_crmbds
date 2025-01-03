@@ -17,6 +17,7 @@ const assistantData = ref({
     name_model: 'gpt-4o-mini',
 });
 
+const isLoading = ref(false);
 
 const fetchAssistantFind = async () => {
     try {
@@ -120,6 +121,7 @@ const removeFile = async (index) => {
     pendingFiles.value.splice(index, 1);
 };
 const submitForm = async () => {
+    
     for (let i = 0; i < pendingFiles.value.length; i++) {
         if (pendingFiles.value[i]) {
             const fileId = await uploadFile(pendingFiles.value[i]);
@@ -141,6 +143,7 @@ const submitForm = async () => {
         suggests: JSON.stringify(assistantData.value.suggests),
     };
     try {
+        isLoading.value = true;
         let response;
         if (assistant_id.value) {
             response = await request.post(END_POINT.ASSISTANT_UPDATE, dataToSubmit);
@@ -168,6 +171,7 @@ const submitForm = async () => {
             type: 'error'
         });
     } finally {
+        isLoading.value = false;
         closePopup();
     }
 }
@@ -187,7 +191,7 @@ const modelOptions = [
 <template>
     <div class="popup-overlay">
         <div class="popup-container">
-            <h2>{{ editAssistantId ? 'Chỉnh sửa Trợ Lý' : 'Thêm Trợ Lý Mới' }}</h2>
+            <h2>{{ editAssistantId ? 'Chỉnh sửa trợ lý' : 'Thêm trợ lý mới' }}</h2>
             <button class="close-btn" @click="closePopup"><i class="bx bxs-x-circle"></i></button>
             <form @submit.prevent="submitForm">
                 <!-- Cột bên trái -->
@@ -253,7 +257,12 @@ const modelOptions = [
                 </div>
                 <!-- Nút lưu và hủy -->
                 <div class="form-group form-actions">
-                    <button type="submit" class="save-btn">Lưu</button>
+                    <button type="submit" class="save-btn" :disabled="isLoading">
+                        <span v-if="isLoading">
+                            <i class="bx bx-loader bx-spin"></i> Đang lưu...
+                        </span>
+                        <span v-else>Lưu</span>
+                    </button>
                     <button type="button" @click="closePopup" class="cancel-btn">Hủy</button>
                 </div>
             </form>
@@ -291,7 +300,7 @@ const modelOptions = [
 }
 
 .popup-container h2 {
-    font-size: 26px;
+    font-size: 24px;
     color: var(--color-primary);
     font-weight: bold;
     margin-bottom: 5px;
@@ -360,9 +369,7 @@ form {
 }
 
 .add-btn,
-.remove-btn,
-.save-btn,
-.cancel-btn {
+.remove-btn{
     background-color: var(--color-primary);
     color: white;
     border: none;
@@ -379,13 +386,39 @@ form {
 }
 
 .add-btn:hover,
-.remove-btn:hover,
-.save-btn:hover,
-.cancel-btn:hover {
+.remove-btn:hover {
     background-color: var(--color-primary);
 }
 .save-btn {
     background-color: #28a745;
+}
+
+
+.save-btn,
+.cancel-btn {
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.save-btn {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.save-btn:hover {
+    background-color: #c22c27;
+}
+
+.cancel-btn {
+    background-color: #ccc;
+    color: #333;
+}
+.cancel-btn:hover {
+    background-color: #aaa;
 }
 .suggest-item,
 .file-item {

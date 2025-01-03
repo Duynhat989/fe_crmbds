@@ -8,6 +8,8 @@ import { notify } from '@kyvg/vue3-notification';
 const packages = ref([]);
 const license = ref({});
 const licenseDate = ref("");
+const isLoading = ref(false);
+
 const userData = ref({
     id: 1,
     name: "Hoàng Văn Nam",
@@ -77,6 +79,8 @@ const closePopup = () => {
 
 const submitForm = async () => {
     try {
+        isLoading.value = true;
+
         if (props.isEdit) {
             const response = await request.post(END_POINT.USER_UPDATE, userData.value)
             if (response.success) {
@@ -95,13 +99,15 @@ const submitForm = async () => {
             }
         }
         emit('saved')
-        closePopup()
     } catch (error) {
         notify({
             title: 'Lỗi',
             text: 'Cập nhật người dùng thất bại, vui lòng thử lại sau.',
             type: 'error'
         });
+    } finally {
+        isLoading.value = false;
+        closePopup();
     }
 };
 </script>
@@ -152,7 +158,12 @@ const submitForm = async () => {
                     </div>
                 </div>
                 <div class="form-group form-actions">
-                    <button type="submit" class="save-btn">Lưu</button>
+                    <button type="submit" class="save-btn" :disabled="isLoading">
+                        <span v-if="isLoading">
+                            <i class="bx bx-loader bx-spin"></i> Đang lưu...
+                        </span>
+                        <span v-else>Lưu</span>
+                    </button>
                     <button type="button" @click="closePopup" class="cancel-btn">Hủy</button>
                 </div>
             </form>
@@ -187,7 +198,7 @@ const submitForm = async () => {
 }
 
 .popup-container h2 {
-    font-size: 26px;
+    font-size: 24px;
     color: var(--color-primary);
     font-weight: bold;
     margin-bottom: 5px;
@@ -271,20 +282,32 @@ input[type="date"]:disabled {
     gap: 1rem;
 }
 
+
 .save-btn,
 .cancel-btn {
-    background-color: var(--color-primary);
-    color: white;
+    padding: 10px 20px;
+    font-size: 1em;
     border: none;
-    padding: 0.5rem 1rem;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s;
+    transition: background-color 0.2s ease-in-out;
 }
 
-.save-btn:hover,
+.save-btn {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.save-btn:hover {
+    background-color: #c22c27;
+}
+
+.cancel-btn {
+    background-color: #ccc;
+    color: #333;
+}
+
 .cancel-btn:hover {
-    background-color: #aa2222;
+    background-color: #aaa;
 }
 </style>

@@ -1,5 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { formatCurrency } from '@/utils/format';
+
 import {
   Chart as ChartJS,
   Title,
@@ -206,7 +208,7 @@ onMounted(async () => {
         <div class="chart-card__news">
           <div class="card card-chart today">
             <div class="card-content">
-              <h3>{{ revenueToday }}</h3>
+              <h3> {{ formatCurrency(revenueToday) }}</h3>
               <p>Doanh thu hôm nay</p>
             </div>
             <div class="card-icon__chart">
@@ -221,9 +223,10 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.flex{
+.flex {
   display: flex;
 }
+
 .main-container {
   position: relative;
   padding: 0 5%;
@@ -236,6 +239,13 @@ onMounted(async () => {
 .header-title {
   text-align: center;
   margin-bottom: 20px;
+}
+
+.header-title .title {
+  font-size: 35px;
+  font-weight: bold;
+  color: var(--color-primary);
+  line-height: 56px;
 }
 
 .dashboard-cards {
@@ -369,6 +379,7 @@ onMounted(async () => {
   .charts {
     flex-direction: column;
   }
+
   .card-chart,
   .chart-card {
     width: 100%;

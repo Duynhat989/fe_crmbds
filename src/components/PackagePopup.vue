@@ -14,6 +14,8 @@ const emit = defineEmits(['close', 'saved'])
 const courses = ref([]);
 const assistants = ref([]);
 const listFeatures = ref([]);
+const isLoading = ref(false);
+
 const packageData = ref({
     id: null,
     name: '',
@@ -110,6 +112,8 @@ const closePopup = () => {
 
 const submitForm = async () => {
     try {
+        isLoading.value = true;
+
         const dataToSubmit = {
             ...packageData.value,
             features: JSON.stringify(packageData.value.features),
@@ -142,6 +146,7 @@ const submitForm = async () => {
             type: 'error'
         });
     } finally {
+        isLoading.value = false;
         closePopup();
     }
 };
@@ -190,7 +195,12 @@ const submitForm = async () => {
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="save-btn">Lưu</button>
+                    <button type="submit" class="save-btn" :disabled="isLoading">
+                        <span v-if="isLoading">
+                            <i class="bx bx-loader bx-spin"></i> Đang lưu...
+                        </span>
+                        <span v-else>Lưu</span>
+                    </button>
                     <button type="button" @click="closePopup" class="cancel-btn">Hủy</button>
                 </div>
             </form>
@@ -239,7 +249,7 @@ const submitForm = async () => {
 }
 
 .popup-container h2 {
-    font-size: 26px;
+    font-size: 24px;
     color: var(--color-primary);
     font-weight: bold;
     margin-bottom: 5px;
@@ -283,19 +293,30 @@ const submitForm = async () => {
 
 .save-btn,
 .cancel-btn {
-    background-color: var(--color-primary);
-    color: white;
+    padding: 10px 20px;
+    font-size: 1em;
     border: none;
-    padding: 0.5rem 1rem;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s;
+    transition: background-color 0.2s ease-in-out;
 }
 
-.save-btn:hover,
+.save-btn {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.save-btn:hover {
+    background-color: #c22c27;
+}
+
+.cancel-btn {
+    background-color: #ccc;
+    color: #333;
+}
+
 .cancel-btn:hover {
-    background-color: #e63939;
+    background-color: #aaa;
 }
 
 .checkbox-item {

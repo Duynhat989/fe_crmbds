@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import request from '@/utils/request';
 import { END_POINT } from '@/api/api';
 import { notify } from '@kyvg/vue3-notification';
-
+const isLoading = ref(false);
 const contractData = ref({
     id: null,
     name: '',
@@ -57,6 +57,7 @@ const addInput = () => {
 
 const submitForm = async () => {
     try {
+        isLoading.value = true;
         const formData = new FormData();
         formData.append('name', contractData.value.name);
         formData.append('description', contractData.value.description);
@@ -90,6 +91,7 @@ const submitForm = async () => {
             type: 'error'
         });
     } finally {
+        isLoading.value = false;
         closePopup();
     }
 };
@@ -99,7 +101,7 @@ const submitForm = async () => {
     <div class="popup-overlay">
         <div class="popup-container">
             <button class="close-btn" @click="closePopup"><i class="bx bxs-x-circle"></i></button>
-            <h2>{{ isEdit ? 'Chỉnh sửa Hợp đồng' : 'Thêm Hợp đồng Mới' }}</h2>
+            <h2>{{ isEdit ? 'Chỉnh sửa Hợp đồng' : 'Thêm hợp đồng mới' }}</h2>
             <form @submit.prevent="submitForm" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="name">Tên Hợp đồng:</label>
@@ -158,7 +160,12 @@ const submitForm = async () => {
                     <button type="button" @click="addInput" class="add-btn">Thêm +</button>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="save-btn">Lưu</button>
+                    <button type="submit" class="save-btn" :disabled="isLoading">
+                        <span v-if="isLoading">
+                            <i class="bx bx-loader bx-spin"></i> Đang lưu...
+                        </span>
+                        <span v-else>Lưu</span>
+                    </button>
                     <button type="button" @click="closePopup" class="cancel-btn">Hủy</button>
                 </div>
             </form>
@@ -198,8 +205,10 @@ const submitForm = async () => {
 
 .popup-container h2 {
     font-size: 24px;
-    color: #333;
-    margin-bottom: 15px;
+    color: var(--color-primary);
+    font-weight: bold;
+    margin-bottom: 5px;
+    width: 100%;
     text-align: center;
 }
 
@@ -338,42 +347,40 @@ const submitForm = async () => {
     margin-top: 10px;
 }
 
-.save-btn:hover,
-.add-btn:hover {
-    opacity: 0.8;
+
+
+.save-btn,
+.cancel-btn {
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.save-btn {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.save-btn:hover {
+    background-color: #c22c27;
+}
+
+.cancel-btn {
+    background-color: #ccc;
+    color: #333;
+}
+
+.cancel-btn:hover {
+    background-color: #aaa;
 }
 
 .form-actions {
     margin-top: 20px;
     display: flex;
     gap: 10px;
-}
-
-.save-btn {
-    background-color: #12a837;
-    ;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.cancel-btn {
-    background-color: var(--color-primary);
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.cancel-btn:hover {
-    background-color: #5a6268;
 }
 
 .close-btn {

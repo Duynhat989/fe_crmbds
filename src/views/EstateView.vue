@@ -96,7 +96,7 @@ onMounted(() => {
     </div>
     <div class="main-content">
       <div class="group-button">
-        <button class="button" @click="addNewEstate"><i class='bx bx-message-square-add'></i> Thêm trợ lý</button>
+        <button class="button" @click="addNewEstate"><i class='bx bx-message-square-add'></i> Thêm bài viết</button>
       </div>
       <table class="table" style="border: 1px solid rgba(128, 128, 128, 0.288);;padding: 10px;">
         <thead>
