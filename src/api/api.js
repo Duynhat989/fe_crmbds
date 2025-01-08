@@ -83,4 +83,6 @@ export const END_POINT = {
   REPOST_REVENUE: '/api/report/revenue',
   REPOST_USER_NEW: '/api/report/user-new',
 
+  REPOST_USER_DAY: '/api/report/user-day',
+  REPOST_REVENUE_DAY: '/api/report/revenue-day',
 };

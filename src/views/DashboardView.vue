@@ -24,15 +24,10 @@ const userStats = ref({
   package2Users: 0,
   package3Users: 0,
 });
-const userRegistrationData = ref({
-  monthlyStats: [],
-});
-const revenueData = ref({
-  monthlyRevenueStats: [],
-});
+
 const revenueToday = ref(0);
 const usersToday = ref(0);
-
+const selectedDayRange = ref(7); 
 const fetchUserStats = async () => {
   try {
     const response = await request.get(END_POINT.REPOST_USERS);
@@ -44,37 +39,56 @@ const fetchUserStats = async () => {
   }
 };
 
-const fetchUserRegistrationData = async () => {
+// const fetchUserRegistrationData = async () => {
+//   try {
+//     const response = await request.get(END_POINT.REPOST_USER_NEW);
+//     if (response.success) {
+//       usersToday.value = response.data.usersToday;
+//     }
+//   } catch (error) {
+//     console.error("Không thể tải thông tin dữ liệu:", error);
+//   }
+// };
+
+// // Fetch dữ liệu doanh thu
+// const fetchRevenueData = async () => {
+//   try {
+//     const response = await request.get(END_POINT.REPOST_REVENUE);
+//     if (response.success) {
+//       revenueToday.value = response.data.revenueToday;
+//     }
+//   } catch (error) {
+//     console.error("Không thể tải thông tin dữ liệu:", error);
+//   }
+// };
+const userDayStats = ref([]);
+const revenueDayStats = ref([]);
+
+const fetchDayStats = async () => {
   try {
-    const response = await request.get(END_POINT.REPOST_USER_NEW);
-    if (response.success) {
-      userRegistrationData.value.monthlyStats = response.data.monthlyStats.reverse();
-      usersToday.value = response.data.usersToday;
+    const userDayResponse = await request.get(`${END_POINT.REPOST_USER_DAY}?days=${selectedDayRange.value}day`);
+    const revenueDayResponse = await request.get(`${END_POINT.REPOST_REVENUE_DAY}?days=${selectedDayRange.value}day`);
+
+      if (userDayResponse.success) {
+        userDayStats.value = userDayResponse.data.stats;
+        usersToday.value = userDayStats.value.length > 0 ? userDayStats.value[0].users : 0; 
+      }
+      
+      if (revenueDayResponse.success) {
+        revenueDayStats.value = revenueDayResponse.data.revenueStats;
+        revenueToday.value = revenueDayStats.value.length > 0 ? revenueDayStats.value[0].revenue : 0; 
     }
   } catch (error) {
-    console.error("Không thể tải thông tin dữ liệu:", error);
+    console.error("Không thể tải thông tin dữ liệu ngày:", error);
   }
 };
 
-// Fetch dữ liệu doanh thu
-const fetchRevenueData = async () => {
-  try {
-    const response = await request.get(END_POINT.REPOST_REVENUE);
-    if (response.success) {
-      revenueData.value.monthlyRevenueStats = response.data.monthlyRevenueStats.reverse();
-      revenueToday.value = response.data.revenueToday;
-    }
-  } catch (error) {
-    console.error("Không thể tải thông tin dữ liệu:", error);
-  }
-};
-
-const userRegistrationChartData = computed(() => ({
-  labels: userRegistrationData.value.monthlyStats.map((item) => item.month),
+const userDayChartData = computed(() => ({
+  labels: userDayStats.value.map((stat) => stat.date), 
   datasets: [
     {
-      label: "Người dùng mới",
-      data: userRegistrationData.value.monthlyStats.map((item) => item.users),
+      label: "Người dùng mới theo ngày",
+      data: userDayStats.value.map((stat) => stat.users), 
       borderColor: "#4caf50",
       backgroundColor: "rgba(76, 175, 80, 0.2)",
       borderWidth: 2,
@@ -84,12 +98,12 @@ const userRegistrationChartData = computed(() => ({
   ],
 }));
 
-const revenueChartData = computed(() => ({
-  labels: revenueData.value.monthlyRevenueStats.map((stat) => stat.month),
+const revenueDayChartData = computed(() => ({
+  labels: revenueDayStats.value.map((stat) => stat.date),
   datasets: [
     {
-      label: "Doanh thu (VNĐ)",
-      data: revenueData.value.monthlyRevenueStats.map((stat) => stat.revenue),
+      label: "Doanh thu theo ngày (VNĐ)",
+      data: revenueDayStats.value.map((stat) => stat.revenue), 
       borderColor: "#f44336",
       backgroundColor: "rgba(244, 67, 54, 0.2)",
       borderWidth: 2,
@@ -99,8 +113,7 @@ const revenueChartData = computed(() => ({
   ],
 }));
 
-// Cấu hình chung cho biểu đồ
-const chartOptions = {
+const dayChartOptions = {
   responsive: true,
   plugins: {
     legend: {
@@ -119,7 +132,7 @@ const chartOptions = {
     x: {
       title: {
         display: true,
-        text: "Tháng",
+        text: "Ngày",
       },
     },
     y: {
@@ -134,8 +147,9 @@ const chartOptions = {
 
 onMounted(async () => {
   await fetchUserStats();
-  await fetchUserRegistrationData();
-  await fetchRevenueData();
+  await fetchDayStats();
+  // await fetchUserRegistrationData();
+  // await fetchRevenueData();
 });
 </script>
 <template>
@@ -183,7 +197,15 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-
+    <div class="date-filter">
+      <label for="dayRange">Chọn khoảng thời gian:</label>
+      <select id="dayRange" v-model="selectedDayRange" @change="fetchDayStats">
+        <option value="3">3 ngày</option>
+        <option value="7">7 ngày</option>
+        <option value="30">30 ngày</option>
+        <option value="60">60 ngày</option>
+      </select>
+    </div>
     <!-- Biểu đồ -->
     <div class="charts flex">
       <div class="chart-card">
@@ -198,7 +220,7 @@ onMounted(async () => {
               <i class="bx bxs-user-plus"></i>
             </div>
           </div>
-          <Line :data="userRegistrationChartData" :options="chartOptions" />
+          <Line :data="userDayChartData" :options="dayChartOptions" />
         </div>
       </div>
 
@@ -215,7 +237,7 @@ onMounted(async () => {
               <i class="bx bxs-dollar-circle"></i>
             </div>
           </div>
-          <Line :data="revenueChartData" :options="chartOptions" />
+          <Line :data="revenueDayChartData" :options="dayChartOptions" />
         </div>
       </div>
     </div>
@@ -252,6 +274,34 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
+}
+.date-filter {
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+.date-filter label {
+  margin-right: 10px;
+  font-size: 16px;
+}
+.date-filter select {
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.date-filter select:focus {
+  border-color: #4caf50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+  outline: none;
+}
+
+.date-filter select:hover {
+  border-color: #999;
 }
 
 .card {
