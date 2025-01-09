@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive  } from 'vue';
 import { END_POINT } from '@/api/api';
 import request from '@/utils/request';
 const apiData = ref([]);
@@ -8,6 +8,10 @@ const modifiedFields = ref({});
 const currentPage = ref(1);
 const itemsPerPage = ref(100);
 import { notify } from '@kyvg/vue3-notification';
+
+const paymentMonths = reactive(
+  Array.from({ length: 12 }, (_, i) => ({ value: (i + 1).toString(), label: `${i + 1} tháng` }))
+);
 
 const fetchSetups = async () => {
   try {
@@ -33,6 +37,30 @@ const fetchAssistants = async (page = currentPage.value, limit = itemsPerPage.va
 const handleChange = (name, value) => {
   modifiedFields.value[name] = value;
 };
+
+function handleCheckboxChange(name, value, isChecked) {
+  const targetField = apiData.value.find((api) => api.name === name);
+  if (!targetField) return;
+
+  let currentValue = [];
+  try {
+    currentValue = JSON.parse(targetField.value || "[]");
+  } catch (error) {
+    console.error(`Lỗi phân tích chuỗi JSON cho trường ${name}:`, error);
+  }
+  if (isChecked) {
+    const numericValue = Number(value);
+    if (!currentValue.includes(numericValue)) {
+      currentValue.push(numericValue); 
+    }
+  } else {
+    const numericValue = Number(value);
+    currentValue = currentValue.filter((item) => item !== numericValue);
+  }
+
+  targetField.value = JSON.stringify(currentValue);
+  modifiedFields.value[name] = targetField.value;
+}
 
 const updateData = async () => {
   const dataToUpdate = { ...modifiedFields.value };
@@ -89,6 +117,18 @@ onMounted(() => {
                 {{ assistant.name }}
               </option>
             </select>
+            <div v-else-if="api.name === 'API_PAYMENT_MONTHS'" class="checkbox-group">
+              <div v-for="month in paymentMonths" :key="month.value" class="checkbox-item">
+                <input 
+                  type="checkbox" 
+                  :id="'month_' + month.value" 
+                  :value="month.value" 
+                  :checked="api.value.includes(month.value)"
+                  @change="(e) => handleCheckboxChange(api.name, month.value, e.target.checked)" 
+                />
+                <label :for="'month_' + month.value">{{ month.label }}</label>
+              </div>
+            </div>
             <input v-else type="text" :id="'api_' + api.id" class="input" v-model="api.value" @input="handleChange(api.name, api.value)" />
           </div>
         </div>
@@ -136,6 +176,20 @@ onMounted(() => {
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
+}
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.input-text .checkbox-group  label {
+  margin-bottom: 0px;
 }
 
 .update-button {
