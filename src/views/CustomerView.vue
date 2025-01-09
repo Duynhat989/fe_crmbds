@@ -214,7 +214,7 @@ onMounted(() => {
             <td>{{ item.role == 1 ? 'Quản trị viên' : 'Người dùng' }}</td>
             <td>{{ item.license?.pack.name }}</td>
             <td>{{ item.license?.date }}</td>
-            <td>{{ item.createdAt }}</td>
+            <td>{{ item.createdAt.split('T')[0] }}</td>
             <td class="table-button">
               <button class="button" @click="openPopup(item, true)"><i class='bx bx-edit-alt'></i> Chỉnh sửa</button>
               <button class="button" @click="confirmDelete(item.id)"><i class='bx bx-trash'></i> Xóa vĩnh viễn</button>
