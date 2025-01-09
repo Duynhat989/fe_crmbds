@@ -24,10 +24,17 @@ const userStats = ref({
   package2Users: 0,
   package3Users: 0,
 });
-
+const userRegistrationData = ref({
+  monthlyStats: [],
+});
+const revenueData = ref({
+  monthlyRevenueStats: [],
+});
 const revenueToday = ref(0);
 const usersToday = ref(0);
+const activeTab = ref('users');
 const selectedDayRange = ref(7); 
+
 const fetchUserStats = async () => {
   try {
     const response = await request.get(END_POINT.REPOST_USERS);
@@ -39,28 +46,31 @@ const fetchUserStats = async () => {
   }
 };
 
-// const fetchUserRegistrationData = async () => {
-//   try {
-//     const response = await request.get(END_POINT.REPOST_USER_NEW);
-//     if (response.success) {
-//       usersToday.value = response.data.usersToday;
-//     }
-//   } catch (error) {
-//     console.error("Không thể tải thông tin dữ liệu:", error);
-//   }
-// };
+const fetchUserRegistrationData = async () => {
+  try {
+    const response = await request.get(END_POINT.REPOST_USER_NEW);
+    if (response.success) {
+      userRegistrationData.value.monthlyStats = response.data.monthlyStats.reverse();
+      usersToday.value = response.data.usersToday;
+    }
+  } catch (error) {
+    console.error("Không thể tải thông tin dữ liệu:", error);
+  }
+};
 
-// // Fetch dữ liệu doanh thu
-// const fetchRevenueData = async () => {
-//   try {
-//     const response = await request.get(END_POINT.REPOST_REVENUE);
-//     if (response.success) {
-//       revenueToday.value = response.data.revenueToday;
-//     }
-//   } catch (error) {
-//     console.error("Không thể tải thông tin dữ liệu:", error);
-//   }
-// };
+// Fetch dữ liệu doanh thu
+const fetchRevenueData = async () => {
+  try {
+    const response = await request.get(END_POINT.REPOST_REVENUE);
+    if (response.success) {
+      revenueData.value.monthlyRevenueStats = response.data.monthlyRevenueStats.reverse();
+      revenueToday.value = response.data.revenueToday;
+    }
+  } catch (error) {
+    console.error("Không thể tải thông tin dữ liệu:", error);
+  }
+};
+
 const userDayStats = ref([]);
 const revenueDayStats = ref([]);
 
@@ -145,11 +155,74 @@ const dayChartOptions = {
   },
 };
 
+const userRegistrationChartData = computed(() => ({
+  labels: userRegistrationData.value.monthlyStats.map((item) => item.month),
+  datasets: [
+    {
+      label: "Người dùng mới",
+      data: userRegistrationData.value.monthlyStats.map((item) => item.users),
+      borderColor: "#4caf50",
+      backgroundColor: "rgba(76, 175, 80, 0.2)",
+      borderWidth: 2,
+      tension: 0.4,
+      fill: true,
+    },
+  ],
+}));
+
+const revenueChartData = computed(() => ({
+  labels: revenueData.value.monthlyRevenueStats.map((stat) => stat.month),
+  datasets: [
+    {
+      label: "Doanh thu (VNĐ)",
+      data: revenueData.value.monthlyRevenueStats.map((stat) => stat.revenue),
+      borderColor: "#f44336",
+      backgroundColor: "rgba(244, 67, 54, 0.2)",
+      borderWidth: 2,
+      tension: 0.4,
+      fill: true,
+    },
+  ],
+}));
+
+// Cấu hình chung cho biểu đồ
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: "top",
+      labels: {
+        font: {
+          size: 14,
+        },
+      },
+    },
+    tooltip: {
+      enabled: true,
+    },
+  },
+  scales: {
+    x: {
+      title: {
+        display: true,
+        text: "Tháng",
+      },
+    },
+    y: {
+      title: {
+        display: true,
+        text: "Giá trị",
+      },
+      beginAtZero: true,
+    },
+  },
+};
+
 onMounted(async () => {
   await fetchUserStats();
   await fetchDayStats();
-  // await fetchUserRegistrationData();
-  // await fetchRevenueData();
+  await fetchUserRegistrationData();
+  await fetchRevenueData();
 });
 </script>
 <template>
@@ -197,15 +270,7 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-    <div class="date-filter">
-      <label for="dayRange">Chọn khoảng thời gian:</label>
-      <select id="dayRange" v-model="selectedDayRange" @change="fetchDayStats">
-        <option value="3">3 ngày</option>
-        <option value="7">7 ngày</option>
-        <option value="30">30 ngày</option>
-        <option value="60">60 ngày</option>
-      </select>
-    </div>
+  
     <!-- Biểu đồ -->
     <div class="charts flex">
       <div class="chart-card">
@@ -220,7 +285,7 @@ onMounted(async () => {
               <i class="bx bxs-user-plus"></i>
             </div>
           </div>
-          <Line :data="userDayChartData" :options="dayChartOptions" />
+          <Line :data="userRegistrationChartData" :options="chartOptions" />
         </div>
       </div>
 
@@ -237,11 +302,49 @@ onMounted(async () => {
               <i class="bx bxs-dollar-circle"></i>
             </div>
           </div>
-          <Line :data="revenueDayChartData" :options="dayChartOptions" />
+          <Line :data="revenueChartData" :options="chartOptions" />
         </div>
       </div>
     </div>
-  </div>
+    <div class="tabs">
+      <button 
+        :class="{ active: activeTab === 'users' }" 
+        @click="activeTab = 'users'">
+        Người dùng
+      </button>
+      <button 
+        :class="{ active: activeTab === 'revenue' }" 
+        @click="activeTab = 'revenue'">
+        Doanh thu
+      </button>
+    </div>
+    <div>
+      <div class="date-filter">
+        <label for="dayRange">Chọn khoảng thời gian:</label>
+        <select id="dayRange" v-model="selectedDayRange" @change="fetchDayStats">
+          <option value="3">3 ngày</option>
+          <option value="7">7 ngày</option>
+          <option value="30">30 ngày</option>
+          <option value="60">60 ngày</option>
+        </select>
+      </div>
+      <div v-if="activeTab === 'users'" class="charts flex">
+        <div class="chart-card chart-card-list">
+          <h2 class="text-xl">Thống kê đăng ký mới trong ngày</h2>
+            <Line :data="userDayChartData" :options="dayChartOptions" />
+          </div>
+        </div>
+      </div>
+  
+      <div v-if="activeTab === 'revenue'" class="charts flex">
+        <div class="chart-card chart-card-list">
+          <h2 class="text-xl">Thống kê doanh thu trong ngày</h2>
+          <div class="chart-card__news">
+            <Line :data="revenueDayChartData" :options="dayChartOptions" />
+          </div>
+        </div>
+      </div>
+    </div>
 </template>
 
 <style scoped>
@@ -411,14 +514,33 @@ onMounted(async () => {
   width: 50%;
   margin-bottom: 15px;
 }
-
+.chart-card-list {
+  width: 100%;
+}
 .chart-card__news {
   display: flex;
   flex-direction: column;
   align-items: self-start;
   gap: 15px;
 }
-
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+.tabs button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  border: none;
+  background: #f0f0f0;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+}
+.tabs button.active {
+  background: #007bff;
+  color: #fff;
+}
 @media (max-width: 1200px) {
   .card-chart {
     width: 50%;
