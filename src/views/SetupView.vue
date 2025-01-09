@@ -206,4 +206,8 @@ onMounted(() => {
 .update-button:hover {
   background-color: #c47f7f;
 }
+.setting{
+    overflow-y: scroll;
+    height: 90vh;
+}
 </style>
