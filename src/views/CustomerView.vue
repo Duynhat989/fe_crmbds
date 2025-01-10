@@ -5,25 +5,34 @@ import request from '@/utils/request';
 import UserPopup from '@/components/UserPopup.vue';
 import PaginationView from '@/components/Pagination.vue';
 
+
 import * as XLSX from "xlsx";
 
-const exportToExcel = () => {
-  const data = users.value.map((user, index) => ({
-    "Số thứ tự": index + 1,
-    "Tên người dùng": user.name,
-    "Số điện thoại": user.phone,
-    "Email": user.email,
-    "Quyền": user.role == 1 ? "Quản trị viên" : "Người dùng",
-    "Gói cước": user.license?.pack?.name || "Không có",
-    "Ngày hết hạn": user.license?.date || "Không có",
-  }));
+const exportToExcel = async () => {
+  isLoading.value = true
+  textLoading.value = "Đang tải dữ liệu"
+  let dataTemp = await fetchUsers(1, total.value, searchQuery.value, selectedDateTime.value, selectedPackage.value, true);
+  // console.log(dataTemp)
+  try {
+    const data = dataTemp.map((user, index) => ({
+      "Số thứ tự": index + 1,
+      "Tên người dùng": user.name,
+      "Số điện thoại": user.phone,
+      "Email": user.email,
+      "Quyền": user.role == 1 ? "Quản trị viên" : "Người dùng",
+      "Gói cước": user.license?.pack?.name || "Không có",
+      "Ngày hết hạn": user.license?.date || "Không có",
+    }));
+    //MAP DỮ LIỆU 
 
-  const worksheet = XLSX.utils.json_to_sheet(data);
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách người dùng");
 
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách người dùng");
+    XLSX.writeFile(workbook, "Danh_sach_nguoi_dung.xlsx");
+  } catch (error) {
 
-  XLSX.writeFile(workbook, "Danh_sach_nguoi_dung.xlsx");
+  }
 };
 const searchQuery = ref('');
 
@@ -104,7 +113,7 @@ const fetchLicenses = async (userId) => {
     return null;
   }
 };
-const fetchUsers = async (page = 1, limit = 10, search = searchQuery.value, date = selectedDateTime.value, pack = selectedPackage.value) => {
+const fetchUsers = async (page = 1, limit = 10, search = searchQuery.value, date = selectedDateTime.value, pack = selectedPackage.value, isSet = false) => {
   try {
     const response = await request.get(END_POINT.USER_LIST, {
       params: {
@@ -115,14 +124,25 @@ const fetchUsers = async (page = 1, limit = 10, search = searchQuery.value, date
         pack
       }
     });
-    users.value = response.data;
-    total.value = response.total;
-    currentPage.value = response.page;
-    itemsPerPage.value = response.limit;
-    for (const user of users.value) {
-      user.license = await fetchLicenses(user.id);
+    if (!isSet) {
+      users.value = response.data;
+      total.value = response.total;
+      currentPage.value = response.page;
+      itemsPerPage.value = response.limit;
+      for (const user of users.value) {
+        user.license = await fetchLicenses(user.id);
+      }
+    } else {
+      let tempUsers = response.data;
+      let index = 0
+      for (const user of tempUsers) {
+        user.license = await fetchLicenses(user.id);
+        textLoading.value = `Dữ liệu tải xuống được ${index}/${tempUsers.length}`
+        index++
+      }
+      return tempUsers
     }
-
+    isLoading.value = false
   } catch (error) {
     console.error('Lỗi lấy danh sách người dung:', error)
   }
@@ -151,7 +171,9 @@ onMounted(() => {
   fetchPackages();
   fetchUsers();
 });
-
+// xử lý loading
+const isLoading = ref(false)
+const textLoading = ref('Hi')
 </script>
 <template>
   <div class="main-container">
@@ -176,17 +198,17 @@ onMounted(() => {
             </option>
           </select>
         </div>
-      <div class="filter-column">
-        <label for="expirationDate" class="filter-label">Ngày sắp hết hạn:</label>
-        <input type="date" id="expirationDate" v-model="selectedDateTime" class="filter-date"
-          aria-label="Chọn ngày và giờ" />
-      </div>
-      <div class="filter-column">
-        <label  class="filter-label">&nbsp;</label>
-        <button class="button export-button" @click="exportToExcel">
-          <i class='bx bx-export'></i> Xuất Excel
-        </button>
-      </div>
+        <div class="filter-column">
+          <label for="expirationDate" class="filter-label">Ngày sắp hết hạn:</label>
+          <input type="date" id="expirationDate" v-model="selectedDateTime" class="filter-date"
+            aria-label="Chọn ngày và giờ" />
+        </div>
+        <div class="filter-column">
+          <label class="filter-label">&nbsp;</label>
+          <button class="button export-button" @click="exportToExcel">
+            <i class='bx bx-export'></i> Xuất Excel
+          </button>
+        </div>
       </div>
     </div>
 
@@ -226,11 +248,38 @@ onMounted(() => {
     </div>
     <UserPopup v-if="showPopup" :packs="packages" :user="selectedUser" :isEdit="isEdit" @close="closePopup"
       @saved="fetchUsers" />
+    <div class="loading" v-if="isLoading">
+      <div class="loading_content">
+        <div class="icon"><i class='bx bx-loader bx-spin'></i></div>
+        <div class="text">
+          {{ textLoading }}
+        </div>
+      </div>
+    </div>
   </div>
 
 </template>
 
 <style scoped>
+.loading {
+  position: fixed;
+  background-color: white;
+  width: 100%;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  padding-top: 10%;
+}
+
+.loading .icon {
+  font-size: 1.5em;
+}
+
+.loading_content {
+  text-align: center;
+}
+
 .header-title {
   text-align: center;
   margin-top: 40px;
@@ -268,11 +317,13 @@ onMounted(() => {
   margin-top: 10px;
   flex-wrap: wrap;
 }
+
 .filter-column {
   display: flex;
   align-items: center;
   flex-direction: column;
 }
+
 .filter-label {
   font-weight: bold;
   font-size: 14px;
@@ -519,12 +570,13 @@ tr:hover {
   .list-card {
     width: calc((100% - 30px)/2);
   }
-  
+
   .filter-row {
     gap: 10px;
     flex-wrap: wrap;
     justify-content: center;
   }
+
   .search-bar {
     width: 100%;
   }
