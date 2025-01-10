@@ -11,7 +11,8 @@ import * as XLSX from "xlsx";
 const exportToExcel = async () => {
   isLoading.value = true
   textLoading.value = "Đang tải dữ liệu"
-  let dataTemp = await fetchUsers(1, total.value, searchQuery.value, selectedDateTime.value, selectedPackage.value, true);
+  // console.log(dataTemp)
+  let dataTemp = await fetchUsers(1, total.value + 5, searchQuery.value, selectedDateTime.value, selectedPackage.value, true);
   // console.log(dataTemp)
   try {
     const data = dataTemp.map((user, index) => ({
@@ -140,6 +141,7 @@ const fetchUsers = async (page = 1, limit = 10, search = searchQuery.value, date
         textLoading.value = `Dữ liệu tải xuống được ${index}/${tempUsers.length}`
         index++
       }
+      isLoading.value = false
       return tempUsers
     }
     isLoading.value = false
